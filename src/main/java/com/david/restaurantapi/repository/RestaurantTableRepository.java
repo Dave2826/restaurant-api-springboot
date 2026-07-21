@@ -4,12 +4,14 @@ import com.david.restaurantapi.entity.RestaurantTable;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * Spring Data repository for the {@link RestaurantTable} entity.
+ * Repositorio Spring Data para la entidad {@link RestaurantTable}.
  * <p>
- * Provides standard CRUD operations on restaurant tables.
+ * Proporciona operaciones CRUD est&aacute;ndar sobre la tabla de mesas
+ * del restaurante.
  * </p>
  *
  * @author David
+ * @version 1.0
  */
 public interface RestaurantTableRepository extends CrudRepository<RestaurantTable, Integer> {
 }

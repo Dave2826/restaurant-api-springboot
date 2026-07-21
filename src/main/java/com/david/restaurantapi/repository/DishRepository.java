@@ -4,12 +4,14 @@ import com.david.restaurantapi.entity.Dish;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * Spring Data repository for the {@link Dish} entity.
+ * Repositorio Spring Data para la entidad {@link Dish}.
  * <p>
- * Provides standard CRUD operations on dishes available in the menu.
+ * Proporciona operaciones CRUD est&aacute;ndar sobre los platos
+ * disponibles en el men&uacute; del restaurante.
  * </p>
  *
  * @author David
+ * @version 1.0
  */
 public interface DishRepository extends CrudRepository<Dish, Integer> {
 }
