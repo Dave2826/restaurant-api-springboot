@@ -12,15 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa una mesa f&iacute;sica dentro del restaurante.
- * <p>
- * Cada mesa tiene un n&uacute;mero &uacute;nico, una capacidad de comensales
- * y una ubicaci&oacute;n opcional. Una mesa puede tener varias &oacute;rdenes
- * asociadas a lo largo del tiempo.
- * </p>
+ * Representa una mesa fisica del restaurante.
  *
- * @author David
- * @version 1.0
+ * Contiene informacion como el numero de mesa,
+ * la capacidad de comensales y la ubicacion.
+ *
+ * @author David Morales Guerrero
  */
 @Entity
 @Table(name = "restaurant_tables")
@@ -30,28 +27,20 @@ public class RestaurantTable {
     // Atributos
     // ----------------------------------------------------
 
-    /**
-     * Identificador &uacute;nico de la mesa.
-     */
+    /** Identificador de la mesa. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /**
-     * N&uacute;mero &uacute;nico de la mesa dentro del restaurante.
-     */
+    /** Numero unico de la mesa. */
     @Column(name = "table_number", nullable = false, unique = true)
     private Integer tableNumber;
 
-    /**
-     * Capacidad m&aacute;xima de comensales que puede albergar la mesa.
-     */
+    /** Cantidad maxima de comensales. */
     @Column(nullable = false)
     private Integer capacity;
 
-    /**
-     * Ubicaci&oacute;n f&iacute;sica de la mesa dentro del restaurante.
-     */
+    /** Ubicacion dentro del restaurante. */
     @Column(length = 100)
     private String location;
 
@@ -59,9 +48,7 @@ public class RestaurantTable {
     // Relaciones
     // ----------------------------------------------------
 
-    /**
-     * Lista de &oacute;rdenes asociadas a esta mesa.
-     */
+    /** Ordenes asociadas a esta mesa. */
     @OneToMany(mappedBy = "restaurantTable", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders = new ArrayList<>();
 
@@ -69,9 +56,7 @@ public class RestaurantTable {
     // Constructores
     // ----------------------------------------------------
 
-    /**
-     * Constructor por defecto requerido por JPA.
-     */
+    /** Constructor vacio. */
     public RestaurantTable() {
     }
 
@@ -80,43 +65,43 @@ public class RestaurantTable {
     // ----------------------------------------------------
 
     /**
-     * Obtiene el identificador &uacute;nico de la mesa.
+     * Obtiene el id de la mesa.
      *
-     * @return Identificador de la mesa.
+     * @return Id de la mesa.
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * Establece el identificador &uacute;nico de la mesa.
+     * Asigna el id de la mesa.
      *
-     * @param id Identificador de la mesa.
+     * @param id Id de la mesa.
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * Obtiene el n&uacute;mero &uacute;nico de la mesa.
+     * Obtiene el numero de la mesa.
      *
-     * @return N&uacute;mero de mesa.
+     * @return Numero de la mesa.
      */
     public Integer getTableNumber() {
         return tableNumber;
     }
 
     /**
-     * Establece el n&uacute;mero &uacute;nico de la mesa.
+     * Asigna el numero de la mesa.
      *
-     * @param tableNumber N&uacute;mero de mesa.
+     * @param tableNumber Numero de la mesa.
      */
     public void setTableNumber(Integer tableNumber) {
         this.tableNumber = tableNumber;
     }
 
     /**
-     * Obtiene la capacidad m&aacute;xima de comensales.
+     * Obtiene la capacidad de la mesa.
      *
      * @return Capacidad de la mesa.
      */
@@ -125,7 +110,7 @@ public class RestaurantTable {
     }
 
     /**
-     * Establece la capacidad m&aacute;xima de comensales.
+     * Asigna la capacidad de la mesa.
      *
      * @param capacity Capacidad de la mesa.
      */
@@ -134,36 +119,36 @@ public class RestaurantTable {
     }
 
     /**
-     * Obtiene la ubicaci&oacute;n f&iacute;sica de la mesa.
+     * Obtiene la ubicacion de la mesa.
      *
-     * @return Ubicaci&oacute;n de la mesa.
+     * @return Ubicacion de la mesa.
      */
     public String getLocation() {
         return location;
     }
 
     /**
-     * Establece la ubicaci&oacute;n f&iacute;sica de la mesa.
+     * Asigna la ubicacion de la mesa.
      *
-     * @param location Ubicaci&oacute;n de la mesa.
+     * @param location Ubicacion de la mesa.
      */
     public void setLocation(String location) {
         this.location = location;
     }
 
     /**
-     * Obtiene la lista de &oacute;rdenes asociadas a esta mesa.
+     * Obtiene las ordenes asociadas a esta mesa.
      *
-     * @return Lista de &oacute;rdenes.
+     * @return Lista de ordenes.
      */
     public List<Order> getOrders() {
         return orders;
     }
 
     /**
-     * Establece la lista de &oacute;rdenes asociadas a esta mesa.
+     * Asigna las ordenes asociadas a esta mesa.
      *
-     * @param orders Lista de &oacute;rdenes.
+     * @param orders Lista de ordenes.
      */
     public void setOrders(List<Order> orders) {
         this.orders = orders;

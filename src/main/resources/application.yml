@@ -1,16 +1,16 @@
-# Nombre de la aplicación.
+# Nombre de la aplicacion
 spring:
   application:
     name: restaurant-api
 
-  # Configuraci�n de la conexi�n a la base de datos PostgreSQL.
+# Configuracion de PostgreSQL
   datasource:
     url: jdbc:postgresql://localhost:5432/restaurant_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
 
-  # Configuraci�n de JPA e Hibernate.
+# Configuracion de Hibernate
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,6 +20,6 @@ spring:
         format_sql: true
     open-in-view: false
 
-# Puerto del servidor embebido.
+# Puerto del servidor
 server:
   port: 8080

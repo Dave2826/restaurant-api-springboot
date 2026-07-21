@@ -5,23 +5,18 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * Repositorio Spring Data para la entidad {@link Order}.
- * <p>
- * Proporciona operaciones CRUD est&aacute;ndar sobre las &oacute;rdenes
- * del restaurante, adem&aacute;s de m&eacute;todos de b&uacute;squeda
- * personalizados.
- * </p>
+ * Repositorio encargado de administrar
+ * la informacion de las ordenes.
  *
- * @author David
- * @version 1.0
+ * @author David Morales Guerrero
  */
 public interface OrderRepository extends CrudRepository<Order, Integer> {
 
     /**
-     * Busca todas las &oacute;rdenes asociadas a una mesa.
+     * Busca las ordenes de una mesa.
      *
-     * @param restaurantTableId Identificador de la mesa.
-     * @return Lista de &oacute;rdenes encontradas.
+     * @param restaurantTableId Id de la mesa.
+     * @return Lista de ordenes encontradas.
      */
     List<Order> findByRestaurantTableId(Integer restaurantTableId);
 }

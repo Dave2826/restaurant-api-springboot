@@ -4,27 +4,24 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Punto de entrada de la aplicaci&oacute;n Restaurant API.
- * <p>
- * Esta clase inicia el contexto de Spring Boot, habilitando la
- * auto-configuraci&oacute;n, el escaneo de componentes y la vinculaci&oacute;n
- * de propiedades para todo el proyecto.
- * </p>
+ * Punto de entrada de la aplicacion Restaurant API.
  *
- * @author David
- * @version 1.0
+ * Inicia el contexto de Spring Boot y permite
+ * la configuracion automatica del proyecto.
+ *
+ * @author David Morales Guerrero
  */
 @SpringBootApplication
 public class RestaurantApiApplication {
 
     // ----------------------------------------------------
-    // M&eacute;todo principal
+    // Metodo principal
     // ----------------------------------------------------
 
     /**
-     * M&eacute;todo principal que arranca la aplicaci&oacute;n Spring Boot.
+     * Metodo principal que arranca la aplicacion.
      *
-     * @param args Argumentos de l&iacute;nea de comandos.
+     * @param args Argumentos de linea de comandos.
      */
     public static void main(String[] args) {
         SpringApplication.run(RestaurantApiApplication.class, args);

@@ -11,15 +11,12 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 
 /**
- * Representa un elemento individual dentro de una orden de cliente.
- * <p>
- * Cada elemento hace referencia a un {@link Dish} y registra la cantidad
- * solicitada, el precio unitario al momento de la orden y el subtotal
- * calculado.
- * </p>
+ * Representa un producto dentro de una orden.
  *
- * @author David
- * @version 1.0
+ * Contiene la cantidad solicitada, el precio
+ * unitario y el subtotal del producto.
+ *
+ * @author David Morales Guerrero
  */
 @Entity
 @Table(name = "order_items")
@@ -29,28 +26,20 @@ public class OrderItem {
     // Atributos
     // ----------------------------------------------------
 
-    /**
-     * Identificador &uacute;nico del elemento de orden.
-     */
+    /** Identificador del producto en la orden. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /**
-     * Cantidad solicitada de este producto.
-     */
+    /** Cantidad solicitada. */
     @Column(nullable = false)
     private Integer quantity;
 
-    /**
-     * Precio unitario del producto al momento de la orden.
-     */
+    /** Precio unitario del producto. */
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
-    /**
-     * Subtotal calculado (cantidad por precio unitario).
-     */
+    /** Subtotal del producto. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
@@ -58,16 +47,12 @@ public class OrderItem {
     // Relaciones
     // ----------------------------------------------------
 
-    /**
-     * Orden a la que pertenece este elemento.
-     */
+    /** Orden a la que pertenece. */
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    /**
-     * Plato solicitado en este elemento de orden.
-     */
+    /** Plato solicitado. */
     @ManyToOne
     @JoinColumn(name = "dish_id", nullable = false)
     private Dish dish;
@@ -76,9 +61,7 @@ public class OrderItem {
     // Constructores
     // ----------------------------------------------------
 
-    /**
-     * Constructor por defecto requerido por JPA.
-     */
+    /** Constructor vacio. */
     public OrderItem() {
     }
 
@@ -87,18 +70,18 @@ public class OrderItem {
     // ----------------------------------------------------
 
     /**
-     * Obtiene el identificador &uacute;nico del elemento.
+     * Obtiene el id del producto en la orden.
      *
-     * @return Identificador del elemento.
+     * @return Id del producto.
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * Establece el identificador &uacute;nico del elemento.
+     * Asigna el id del producto en la orden.
      *
-     * @param id Identificador del elemento.
+     * @param id Id del producto.
      */
     public void setId(Integer id) {
         this.id = id;
@@ -114,7 +97,7 @@ public class OrderItem {
     }
 
     /**
-     * Establece la cantidad solicitada.
+     * Asigna la cantidad solicitada.
      *
      * @param quantity Cantidad solicitada.
      */
@@ -123,7 +106,7 @@ public class OrderItem {
     }
 
     /**
-     * Obtiene el precio unitario del producto.
+     * Obtiene el precio unitario.
      *
      * @return Precio unitario.
      */
@@ -132,7 +115,7 @@ public class OrderItem {
     }
 
     /**
-     * Establece el precio unitario del producto.
+     * Asigna el precio unitario.
      *
      * @param unitPrice Precio unitario.
      */
@@ -141,25 +124,25 @@ public class OrderItem {
     }
 
     /**
-     * Obtiene el subtotal del elemento.
+     * Obtiene el subtotal del producto.
      *
-     * @return Subtotal del elemento.
+     * @return Subtotal del producto.
      */
     public BigDecimal getSubtotal() {
         return subtotal;
     }
 
     /**
-     * Establece el subtotal del elemento.
+     * Asigna el subtotal del producto.
      *
-     * @param subtotal Subtotal del elemento.
+     * @param subtotal Subtotal del producto.
      */
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
     }
 
     /**
-     * Obtiene la orden a la que pertenece este elemento.
+     * Obtiene la orden a la que pertenece.
      *
      * @return Orden asociada.
      */
@@ -168,7 +151,7 @@ public class OrderItem {
     }
 
     /**
-     * Establece la orden a la que pertenece este elemento.
+     * Asigna la orden a la que pertenece.
      *
      * @param order Orden asociada.
      */
@@ -177,7 +160,7 @@ public class OrderItem {
     }
 
     /**
-     * Obtiene el plato asociado a este elemento.
+     * Obtiene el plato solicitado.
      *
      * @return Plato solicitado.
      */
@@ -186,7 +169,7 @@ public class OrderItem {
     }
 
     /**
-     * Establece el plato asociado a este elemento.
+     * Asigna el plato solicitado.
      *
      * @param dish Plato solicitado.
      */

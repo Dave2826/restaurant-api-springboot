@@ -5,23 +5,18 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * Repositorio Spring Data para la entidad {@link OrderItem}.
- * <p>
- * Proporciona operaciones CRUD est&aacute;ndar sobre los elementos
- * de las &oacute;rdenes, adem&aacute;s de m&eacute;todos de b&uacute;squeda
- * personalizados.
- * </p>
+ * Repositorio encargado de administrar
+ * los productos de las ordenes.
  *
- * @author David
- * @version 1.0
+ * @author David Morales Guerrero
  */
 public interface OrderItemRepository extends CrudRepository<OrderItem, Integer> {
 
     /**
-     * Busca todos los elementos pertenecientes a una orden.
+     * Busca los productos de una orden.
      *
-     * @param orderId Identificador de la orden.
-     * @return Lista de elementos encontrados.
+     * @param orderId Id de la orden.
+     * @return Lista de productos encontrados.
      */
     List<OrderItem> findByOrderId(Integer orderId);
 }

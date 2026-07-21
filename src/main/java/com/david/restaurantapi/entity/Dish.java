@@ -12,15 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa un plato disponible en el men&uacute; del restaurante.
- * <p>
- * Cada plato tiene un nombre, descripci&oacute;n, precio, categor&iacute;a
- * y estado de disponibilidad. Un plato puede aparecer en varios
- * {@link OrderItem} a trav&eacute;s de diferentes &oacute;rdenes.
- * </p>
+ * Representa un plato disponible en el menu
+ * del restaurante.
  *
- * @author David
- * @version 1.0
+ * Contiene informacion como el nombre,
+ * descripcion, categoria y precio.
+ *
+ * @author David Morales Guerrero
  */
 @Entity
 @Table(name = "dishes")
@@ -30,40 +28,28 @@ public class Dish {
     // Atributos
     // ----------------------------------------------------
 
-    /**
-     * Identificador &uacute;nico del plato.
-     */
+    /** Identificador del plato. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /**
-     * Nombre del plato.
-     */
+    /** Nombre del plato. */
     @Column(nullable = false, length = 150)
     private String name;
 
-    /**
-     * Descripci&oacute;n detallada del plato.
-     */
+    /** Descripcion del plato. */
     @Column(length = 500)
     private String description;
 
-    /**
-     * Precio del plato.
-     */
+    /** Precio del plato. */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    /**
-     * Categor&iacute;a del plato (Ej. Entrada, Plato fuerte, Postre).
-     */
+    /** Categoria del plato. */
     @Column(length = 100)
     private String category;
 
-    /**
-     * Indica si el plato est&aacute; disponible para ordenar.
-     */
+    /** Indica si el plato esta disponible. */
     @Column(nullable = false)
     private Boolean available;
 
@@ -71,9 +57,7 @@ public class Dish {
     // Relaciones
     // ----------------------------------------------------
 
-    /**
-     * Lista de elementos de orden que hacen referencia a este plato.
-     */
+    /** Ordenes que incluyen este plato. */
     @OneToMany(mappedBy = "dish")
     private List<OrderItem> orderItems = new ArrayList<>();
 
@@ -81,9 +65,7 @@ public class Dish {
     // Constructores
     // ----------------------------------------------------
 
-    /**
-     * Constructor por defecto requerido por JPA.
-     */
+    /** Constructor vacio. */
     public Dish() {
     }
 
@@ -92,18 +74,18 @@ public class Dish {
     // ----------------------------------------------------
 
     /**
-     * Obtiene el identificador &uacute;nico del plato.
+     * Obtiene el id del plato.
      *
-     * @return Identificador del plato.
+     * @return Id del plato.
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * Establece el identificador &uacute;nico del plato.
+     * Asigna el id del plato.
      *
-     * @param id Identificador del plato.
+     * @param id Id del plato.
      */
     public void setId(Integer id) {
         this.id = id;
@@ -119,7 +101,7 @@ public class Dish {
     }
 
     /**
-     * Establece el nombre del plato.
+     * Asigna el nombre del plato.
      *
      * @param name Nombre del plato.
      */
@@ -128,18 +110,18 @@ public class Dish {
     }
 
     /**
-     * Obtiene la descripci&oacute;n del plato.
+     * Obtiene la descripcion del plato.
      *
-     * @return Descripci&oacute;n del plato.
+     * @return Descripcion del plato.
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Establece la descripci&oacute;n del plato.
+     * Asigna la descripcion del plato.
      *
-     * @param description Descripci&oacute;n del plato.
+     * @param description Descripcion del plato.
      */
     public void setDescription(String description) {
         this.description = description;
@@ -155,7 +137,7 @@ public class Dish {
     }
 
     /**
-     * Establece el precio del plato.
+     * Asigna el precio del plato.
      *
      * @param price Precio del plato.
      */
@@ -164,54 +146,54 @@ public class Dish {
     }
 
     /**
-     * Obtiene la categor&iacute;a del plato.
+     * Obtiene la categoria del plato.
      *
-     * @return Categor&iacute;a del plato.
+     * @return Categoria del plato.
      */
     public String getCategory() {
         return category;
     }
 
     /**
-     * Establece la categor&iacute;a del plato.
+     * Asigna la categoria del plato.
      *
-     * @param category Categor&iacute;a del plato.
+     * @param category Categoria del plato.
      */
     public void setCategory(String category) {
         this.category = category;
     }
 
     /**
-     * Indica si el plato est&aacute; disponible.
+     * Obtiene la disponibilidad del plato.
      *
-     * @return {@code true} si est&aacute; disponible, {@code false} en caso contrario.
+     * @return Disponibilidad del plato.
      */
     public Boolean getAvailable() {
         return available;
     }
 
     /**
-     * Establece la disponibilidad del plato.
+     * Asigna la disponibilidad del plato.
      *
-     * @param available {@code true} si est&aacute; disponible, {@code false} en caso contrario.
+     * @param available Disponibilidad del plato.
      */
     public void setAvailable(Boolean available) {
         this.available = available;
     }
 
     /**
-     * Obtiene la lista de elementos de orden que referencian este plato.
+     * Obtiene las ordenes que incluyen este plato.
      *
-     * @return Lista de elementos de orden.
+     * @return Lista de ordenes.
      */
     public List<OrderItem> getOrderItems() {
         return orderItems;
     }
 
     /**
-     * Establece la lista de elementos de orden que referencian este plato.
+     * Asigna las ordenes que incluyen este plato.
      *
-     * @param orderItems Lista de elementos de orden.
+     * @param orderItems Lista de ordenes.
      */
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;

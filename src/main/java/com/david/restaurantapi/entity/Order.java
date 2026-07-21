@@ -16,15 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa una orden realizada por un cliente en una mesa del restaurante.
- * <p>
- * Cada orden pertenece a una {@link RestaurantTable} y contiene uno o m&aacute;s
- * {@link OrderItem}. El estado (status) indica la etapa actual de la orden,
- * por ejemplo: PENDING, IN_PROGRESS, COMPLETED, CANCELLED.
- * </p>
+ * Representa una orden realizada por un cliente
+ * en una mesa del restaurante.
  *
- * @author David
- * @version 1.0
+ * Contiene la fecha, el estado, el total y
+ * los productos que la componen.
+ *
+ * @author David Morales Guerrero
  */
 @Entity
 @Table(name = "orders")
@@ -34,28 +32,20 @@ public class Order {
     // Atributos
     // ----------------------------------------------------
 
-    /**
-     * Identificador &uacute;nico de la orden.
-     */
+    /** Identificador de la orden. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /**
-     * Fecha y hora en que se registr&oacute; la orden.
-     */
+    /** Fecha y hora de la orden. */
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
 
-    /**
-     * Estado actual de la orden (PENDING, IN_PROGRESS, COMPLETED, CANCELLED).
-     */
+    /** Estado actual de la orden. */
     @Column(nullable = false, length = 50)
     private String status;
 
-    /**
-     * Monto total de la orden.
-     */
+    /** Total a pagar de la orden. */
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
@@ -63,16 +53,12 @@ public class Order {
     // Relaciones
     // ----------------------------------------------------
 
-    /**
-     * Mesa del restaurante a la que pertenece esta orden.
-     */
+    /** Mesa donde se realizo la orden. */
     @ManyToOne
     @JoinColumn(name = "restaurant_table_id", nullable = false)
     private RestaurantTable restaurantTable;
 
-    /**
-     * Lista de elementos que componen esta orden.
-     */
+    /** Productos incluidos en la orden. */
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
@@ -80,9 +66,7 @@ public class Order {
     // Constructores
     // ----------------------------------------------------
 
-    /**
-     * Constructor por defecto requerido por JPA.
-     */
+    /** Constructor vacio. */
     public Order() {
     }
 
@@ -91,18 +75,18 @@ public class Order {
     // ----------------------------------------------------
 
     /**
-     * Obtiene el identificador &uacute;nico de la orden.
+     * Obtiene el id de la orden.
      *
-     * @return Identificador de la orden.
+     * @return Id de la orden.
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * Establece el identificador &uacute;nico de la orden.
+     * Asigna el id de la orden.
      *
-     * @param id Identificador de la orden.
+     * @param id Id de la orden.
      */
     public void setId(Integer id) {
         this.id = id;
@@ -118,7 +102,7 @@ public class Order {
     }
 
     /**
-     * Establece la fecha y hora de la orden.
+     * Asigna la fecha y hora de la orden.
      *
      * @param orderDate Fecha y hora de la orden.
      */
@@ -127,7 +111,7 @@ public class Order {
     }
 
     /**
-     * Obtiene el estado actual de la orden.
+     * Obtiene el estado de la orden.
      *
      * @return Estado de la orden.
      */
@@ -136,7 +120,7 @@ public class Order {
     }
 
     /**
-     * Establece el estado actual de la orden.
+     * Asigna el estado de la orden.
      *
      * @param status Estado de la orden.
      */
@@ -145,54 +129,54 @@ public class Order {
     }
 
     /**
-     * Obtiene el monto total de la orden.
+     * Obtiene el total de la orden.
      *
-     * @return Monto total de la orden.
+     * @return Total de la orden.
      */
     public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
     /**
-     * Establece el monto total de la orden.
+     * Asigna el total de la orden.
      *
-     * @param totalAmount Monto total de la orden.
+     * @param totalAmount Total de la orden.
      */
     public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
     }
 
     /**
-     * Obtiene la mesa asociada a esta orden.
+     * Obtiene la mesa de la orden.
      *
-     * @return Mesa del restaurante.
+     * @return Mesa de la orden.
      */
     public RestaurantTable getRestaurantTable() {
         return restaurantTable;
     }
 
     /**
-     * Establece la mesa asociada a esta orden.
+     * Asigna la mesa de la orden.
      *
-     * @param restaurantTable Mesa del restaurante.
+     * @param restaurantTable Mesa de la orden.
      */
     public void setRestaurantTable(RestaurantTable restaurantTable) {
         this.restaurantTable = restaurantTable;
     }
 
     /**
-     * Obtiene la lista de elementos de la orden.
+     * Obtiene los productos de la orden.
      *
-     * @return Lista de elementos de la orden.
+     * @return Lista de productos.
      */
     public List<OrderItem> getItems() {
         return items;
     }
 
     /**
-     * Establece la lista de elementos de la orden.
+     * Asigna los productos de la orden.
      *
-     * @param items Lista de elementos de la orden.
+     * @param items Lista de productos.
      */
     public void setItems(List<OrderItem> items) {
         this.items = items;
