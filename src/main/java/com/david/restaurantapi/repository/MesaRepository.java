@@ -1,6 +1,6 @@
 package com.david.restaurantapi.repository;
 
-import com.david.restaurantapi.entity.RestaurantTable;
+import com.david.restaurantapi.entity.Mesa;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -9,5 +9,5 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author David Morales Guerrero
  */
-public interface RestaurantTableRepository extends CrudRepository<RestaurantTable, Integer> {
+public interface MesaRepository extends CrudRepository<Mesa, Integer> {
 }
