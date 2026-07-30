@@ -4,14 +4,17 @@ import com.david.restaurantapi.entity.DetallePedido;
 import com.david.restaurantapi.entity.Mesa;
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.entity.Platillo;
+import com.david.restaurantapi.entity.Usuario;
 import com.david.restaurantapi.repository.DetallePedidoRepository;
 import com.david.restaurantapi.repository.MesaRepository;
 import com.david.restaurantapi.repository.PedidoRepository;
 import com.david.restaurantapi.repository.PlatilloRepository;
+import com.david.restaurantapi.repository.UsuarioRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,23 +30,43 @@ public class DataInitializer implements CommandLineRunner {
     private final PlatilloRepository platilloRepository;
     private final PedidoRepository pedidoRepository;
     private final DetallePedidoRepository detallePedidoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(MesaRepository mesaRepository,
                            PlatilloRepository platilloRepository,
                            PedidoRepository pedidoRepository,
-                           DetallePedidoRepository detallePedidoRepository) {
+                           DetallePedidoRepository detallePedidoRepository,
+                           UsuarioRepository usuarioRepository,
+                           PasswordEncoder passwordEncoder) {
         this.mesaRepository = mesaRepository;
         this.platilloRepository = platilloRepository;
         this.pedidoRepository = pedidoRepository;
         this.detallePedidoRepository = detallePedidoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
+        initializeUsers();
         initializeMesas();
         initializePlatillos();
         initializePedidos();
         initializeDetallesPedido();
+    }
+
+    private void initializeUsers() {
+        if (usuarioRepository.count() > 0) {
+            return;
+        }
+
+        Usuario admin = new Usuario();
+        admin.setUsername("admin");
+        admin.setPassword(passwordEncoder.encode("1234"));
+        admin.setRole("ADMIN");
+
+        usuarioRepository.save(admin);
     }
 
     private void initializeMesas() {

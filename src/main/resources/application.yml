@@ -23,3 +23,8 @@ spring:
 # Puerto del servidor
 server:
   port: 8080
+
+# Configuracion JWT
+jwt:
+  secret: "clave-segura-para-restaurant-api-con-minimo-32-caracteres-2026"
+  expiration: 86400000
