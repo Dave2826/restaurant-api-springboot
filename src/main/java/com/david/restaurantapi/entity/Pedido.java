@@ -114,6 +114,7 @@ public class Pedido {
         this.total = total;
     }
 
+    @Schema(description = "Mesa asignada al pedido. Enviar únicamente el ID.", example = "{\"id\": 1}")
     public Mesa getMesa() {
         return mesa;
     }
@@ -123,6 +124,9 @@ public class Pedido {
     }
 
     @JsonIgnore
+    @Schema(
+        description = "Lista de detalles asociados al pedido. Para creación completa utilizar POST /api/pedidos/con-detalles."
+    )
     public List<DetallePedido> getDetalles() {
         return detalles;
     }

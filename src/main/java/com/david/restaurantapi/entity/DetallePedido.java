@@ -113,6 +113,7 @@ public class DetallePedido {
     }
 
     @JsonIgnore
+    @Schema(description = "Pedido al que pertenece. Enviar únicamente el ID.", example = "{\"id\": 1}")
     public Pedido getPedido() {
         return pedido;
     }
@@ -122,6 +123,7 @@ public class DetallePedido {
     }
 
     @JsonIgnore
+    @Schema(description = "Platillo solicitado. Enviar únicamente el ID.", example = "{\"id\": 1}")
     public Platillo getPlatillo() {
         return platillo;
     }
