@@ -1,6 +1,7 @@
 package com.david.restaurantapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +25,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "dishes")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Platillo {
 
     // ----------------------------------------------------
@@ -31,6 +33,7 @@ public class Platillo {
     // ----------------------------------------------------
 
     /** Identificador del platillo. */
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Identificador generado automaticamente por la base de datos")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -67,7 +70,6 @@ public class Platillo {
     /**
      * Detalles de pedido que incluyen este platillo.
      */
-    @JsonIgnore
     @OneToMany(mappedBy = "platillo")
     private List<DetallePedido> detallesPedido = new ArrayList<>();
 
@@ -131,6 +133,7 @@ public class Platillo {
         this.disponible = disponible;
     }
 
+    @JsonIgnore
     public List<DetallePedido> getDetallesPedido() {
         return detallesPedido;
     }

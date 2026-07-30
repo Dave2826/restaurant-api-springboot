@@ -3,6 +3,9 @@ package com.david.restaurantapi.controller;
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
@@ -37,9 +40,11 @@ public class PedidoController {
      *
      * @return lista de todos los pedidos
      */
-    @Operation(summary = "Obtener todos los pedidos", description = "Devuelve la lista completa de pedidos registrados en el restaurante.")
+    @Operation(summary = "Obtener todos los pedidos", description = "Devuelve la lista completa de pedidos registrados en el restaurante, incluyendo fecha, estado, total y mesa asociada.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Lista de pedidos obtenida correctamente")
+        @ApiResponse(responseCode = "200", description = "Lista de pedidos obtenida correctamente",
+                     content = @Content(mediaType = "application/json",
+                                        array = @ArraySchema(schema = @Schema(implementation = Pedido.class))))
     })
     @GetMapping
     public ResponseEntity<Iterable<Pedido>> findAll() {
@@ -52,7 +57,7 @@ public class PedidoController {
      * @param id identificador del pedido
      * @return el pedido encontrado o 404 si no existe
      */
-    @Operation(summary = "Buscar pedido por ID", description = "Devuelve un pedido segun su identificador unico.")
+    @Operation(summary = "Buscar pedido por ID", description = "Devuelve un pedido especifico utilizando su identificador unico interno.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Pedido encontrado"),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
@@ -70,7 +75,7 @@ public class PedidoController {
      * @param estado estado de los pedidos a buscar
      * @return lista de pedidos con el estado indicado
      */
-    @Operation(summary = "Buscar pedidos por estado", description = "Devuelve todos los pedidos que tienen un estado especifico.")
+    @Operation(summary = "Buscar pedidos por estado", description = "Devuelve todos los pedidos que tienen un estado especifico, por ejemplo: 'COMPLETED', 'PENDING' o 'CANCELLED'.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista de pedidos obtenida correctamente")
     })
@@ -86,12 +91,14 @@ public class PedidoController {
      * @param pedido el pedido a guardar
      * @return el pedido guardado
      */
-    @Operation(summary = "Guardar nuevo pedido", description = "Registra un nuevo pedido en el sistema.")
+    @Operation(summary = "Guardar nuevo pedido", description = "Registra un nuevo pedido en el sistema. El identificador (id) se genera automaticamente por la base de datos, por lo que no debe enviarse en la solicitud.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Pedido creado correctamente")
+        @ApiResponse(responseCode = "201", description = "Pedido creado correctamente"),
+        @ApiResponse(responseCode = "400", description = "Solicitud invalida, verifique los datos enviados")
     })
     @PostMapping
     public ResponseEntity<Pedido> save(@RequestBody Pedido pedido) {
+        pedido.setId(null);
         Pedido saved = pedidoService.save(pedido);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
@@ -102,7 +109,7 @@ public class PedidoController {
      * @param id identificador del pedido a eliminar
      * @return 204 si se elimino correctamente, 404 si no existe
      */
-    @Operation(summary = "Eliminar pedido por ID", description = "Elimina un pedido del sistema segun su identificador.")
+    @Operation(summary = "Eliminar pedido por ID", description = "Elimina un pedido del sistema utilizando su identificador unico.")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Pedido eliminado correctamente"),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado")

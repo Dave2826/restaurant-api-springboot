@@ -3,6 +3,9 @@ package com.david.restaurantapi.controller;
 import com.david.restaurantapi.entity.Platillo;
 import com.david.restaurantapi.service.PlatilloService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
@@ -37,9 +40,11 @@ public class PlatilloController {
      *
      * @return lista de todos los platillos
      */
-    @Operation(summary = "Obtener todos los platillos", description = "Devuelve la lista completa de platillos registrados en el restaurante.")
+    @Operation(summary = "Obtener todos los platillos", description = "Devuelve la lista completa de platillos disponibles en el menu del restaurante, incluyendo nombre, descripcion, precio y categoria.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Lista de platillos obtenida correctamente")
+        @ApiResponse(responseCode = "200", description = "Lista de platillos obtenida correctamente",
+                     content = @Content(mediaType = "application/json",
+                                        array = @ArraySchema(schema = @Schema(implementation = Platillo.class))))
     })
     @GetMapping
     public ResponseEntity<Iterable<Platillo>> findAll() {
@@ -52,7 +57,7 @@ public class PlatilloController {
      * @param id identificador del platillo
      * @return el platillo encontrado o 404 si no existe
      */
-    @Operation(summary = "Buscar platillo por ID", description = "Devuelve un platillo segun su identificador unico.")
+    @Operation(summary = "Buscar platillo por ID", description = "Devuelve un platillo especifico utilizando su identificador unico interno.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Platillo encontrado"),
         @ApiResponse(responseCode = "404", description = "Platillo no encontrado")
@@ -70,7 +75,7 @@ public class PlatilloController {
      * @param categoria categoria de los platillos a buscar
      * @return lista de platillos de la categoria indicada
      */
-    @Operation(summary = "Buscar platillos por categoria", description = "Devuelve todos los platillos que pertenecen a una categoria especifica.")
+    @Operation(summary = "Buscar platillos por categoria", description = "Devuelve todos los platillos que pertenecen a una categoria especifica, por ejemplo: 'Hamburguesas', 'Pizzas', 'Tacos', 'Ensaladas' o 'Bebidas'.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista de platillos obtenida correctamente")
     })
@@ -86,12 +91,14 @@ public class PlatilloController {
      * @param platillo el platillo a guardar
      * @return el platillo guardado
      */
-    @Operation(summary = "Guardar nuevo platillo", description = "Registra un nuevo platillo en el sistema.")
+    @Operation(summary = "Guardar nuevo platillo", description = "Registra un nuevo platillo en el menu del restaurante. El identificador (id) se genera automaticamente por la base de datos, por lo que no debe enviarse en la solicitud.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Platillo creado correctamente")
+        @ApiResponse(responseCode = "201", description = "Platillo creado correctamente"),
+        @ApiResponse(responseCode = "400", description = "Solicitud invalida, verifique los datos enviados")
     })
     @PostMapping
     public ResponseEntity<Platillo> save(@RequestBody Platillo platillo) {
+        platillo.setId(null);
         Platillo saved = platilloService.save(platillo);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
@@ -102,7 +109,7 @@ public class PlatilloController {
      * @param id identificador del platillo a eliminar
      * @return 204 si se elimino correctamente, 404 si no existe
      */
-    @Operation(summary = "Eliminar platillo por ID", description = "Elimina un platillo del sistema segun su identificador.")
+    @Operation(summary = "Eliminar platillo por ID", description = "Elimina un platillo del menu del restaurante utilizando su identificador unico. No se puede eliminar si esta incluido en algun pedido.")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Platillo eliminado correctamente"),
         @ApiResponse(responseCode = "404", description = "Platillo no encontrado")

@@ -1,6 +1,7 @@
 package com.david.restaurantapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name = "order_items")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DetallePedido {
 
     // ----------------------------------------------------
@@ -29,22 +31,23 @@ public class DetallePedido {
     // ----------------------------------------------------
 
     /** Identificador del detalle. */
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Identificador generado automaticamente por la base de datos")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     /** Cantidad del producto. */
-    @Schema(example = "2")
+    @Schema(example = "2", description = "Cantidad de unidades solicitadas")
     @Column(nullable = false)
     private Integer cantidad;
 
     /** Precio unitario del producto. */
-    @Schema(example = "180.00")
+    @Schema(example = "180.00", description = "Precio del platillo individual al momento del pedido")
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
     /** Subtotal del detalle. */
-    @Schema(example = "360.00")
+    @Schema(example = "360.00", description = "Cantidad multiplicada por precio unitario")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
@@ -55,7 +58,6 @@ public class DetallePedido {
     /**
      * Pedido al que pertenece.
      */
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Pedido pedido;
@@ -63,7 +65,6 @@ public class DetallePedido {
     /**
      * Platillo solicitado.
      */
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "dish_id", nullable = false)
     private Platillo platillo;
@@ -112,6 +113,7 @@ public class DetallePedido {
         this.subtotal = subtotal;
     }
 
+    @JsonIgnore
     public Pedido getPedido() {
         return pedido;
     }
@@ -120,6 +122,7 @@ public class DetallePedido {
         this.pedido = pedido;
     }
 
+    @JsonIgnore
     public Platillo getPlatillo() {
         return platillo;
     }

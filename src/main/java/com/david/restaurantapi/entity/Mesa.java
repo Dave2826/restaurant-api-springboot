@@ -1,6 +1,7 @@
 package com.david.restaurantapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -24,6 +25,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "restaurant_tables")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Mesa {
 
     // ----------------------------------------------------
@@ -31,6 +33,7 @@ public class Mesa {
     // ----------------------------------------------------
 
     /** Identificador de la mesa. */
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Identificador generado automaticamente por la base de datos")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -57,7 +60,6 @@ public class Mesa {
     /**
      * Pedidos de la mesa.
      */
-    @JsonIgnore
     @OneToMany(mappedBy = "mesa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pedido> pedidos = new ArrayList<>();
 
@@ -105,6 +107,7 @@ public class Mesa {
         this.ubicacion = ubicacion;
     }
 
+    @JsonIgnore
     public List<Pedido> getPedidos() {
         return pedidos;
     }
