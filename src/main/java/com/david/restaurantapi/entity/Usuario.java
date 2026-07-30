@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
  *
  * @author David Morales Guerrero
  */
+// JPA / Hibernate
 @Entity
 @Table(name = "users")
 public class Usuario {
@@ -22,7 +23,7 @@ public class Usuario {
     // Atributos
     // ----------------------------------------------------
 
-    /** Identificador del usuario. */
+    // Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,7 +32,7 @@ public class Usuario {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    /** Contrasena del usuario almacenada como BCrypt hash. */
+    // BCrypt
     @Column(nullable = false, length = 255)
     private String password;
 

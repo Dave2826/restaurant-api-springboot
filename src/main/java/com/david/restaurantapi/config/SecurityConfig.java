@@ -27,6 +27,7 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSecurity
+// Spring Security
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
@@ -37,6 +38,7 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    // SecurityFilterChain
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -51,6 +53,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            // AuthenticationEntryPoint / AccessDeniedHandler
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setContentType("application/json");
@@ -70,6 +73,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -81,6 +85,7 @@ public class SecurityConfig {
         return source;
     }
 
+    // Authentication
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -95,6 +100,7 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
+    // PasswordEncoder / BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

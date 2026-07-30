@@ -23,6 +23,7 @@ import java.util.List;
  *
  * @author David Morales Guerrero
  */
+// JPA / Hibernate
 @Entity
 @Table(name = "dishes")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -32,7 +33,7 @@ public class Platillo {
     // Atributos
     // ----------------------------------------------------
 
-    /** Identificador del platillo. */
+    // Primary Key
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Identificador generado automaticamente por la base de datos")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

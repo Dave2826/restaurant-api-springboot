@@ -13,7 +13,11 @@ spring:
 # Configuracion de Hibernate
   jpa:
     hibernate:
-      ddl-auto: update
+      # Durante desarrollo:
+      # ddl-auto: create (para regenerar datos de ejemplo)
+      #
+      # Para uso normal:
+        ddl-auto: update
     show-sql: true
     properties:
       hibernate:

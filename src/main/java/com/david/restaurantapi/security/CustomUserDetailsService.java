@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
  * @author David Morales Guerrero
  */
 @Service
+// UserDetailsService
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UsuarioRepository usuarioRepository;
@@ -29,6 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "Usuario no encontrado: " + username));
 
+        // Spring Security
         return User.builder()
             .username(usuario.getUsername())
             .password(usuario.getPassword())

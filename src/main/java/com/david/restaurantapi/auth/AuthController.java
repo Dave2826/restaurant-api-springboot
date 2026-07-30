@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/auth")
+// REST Endpoint
 public class AuthController {
 
+    // Dependency Injection
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -37,6 +39,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "Autenticación exitosa, token JWT generado"),
         @ApiResponse(responseCode = "401", description = "Credenciales inválidas")
     })
+    // HTTP POST
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         Map<String, String> response = authService.login(request);

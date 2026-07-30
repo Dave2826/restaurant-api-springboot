@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
  * @author David Morales Guerrero
  */
 @Service
+// Authentication / JWT
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;

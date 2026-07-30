@@ -1,5 +1,7 @@
 package com.david.restaurantapi.controller;
 
+import com.david.restaurantapi.dto.PedidoConDetallesRequest;
+import com.david.restaurantapi.dto.PedidoConDetallesResponse;
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,8 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/pedidos")
 @SecurityRequirement(name = "bearerAuth")
+// REST Endpoint
 public class PedidoController {
 
+    // Dependency Injection
     private final PedidoService pedidoService;
 
     public PedidoController(PedidoService pedidoService) {
@@ -48,6 +53,7 @@ public class PedidoController {
                      content = @Content(mediaType = "application/json",
                                         array = @ArraySchema(schema = @Schema(implementation = Pedido.class))))
     })
+    // HTTP GET
     @GetMapping
     public ResponseEntity<Iterable<Pedido>> findAll() {
         return ResponseEntity.ok(pedidoService.findAll());
@@ -98,6 +104,7 @@ public class PedidoController {
         @ApiResponse(responseCode = "201", description = "Pedido creado correctamente"),
         @ApiResponse(responseCode = "400", description = "Solicitud invalida, verifique los datos enviados")
     })
+    // HTTP POST
     @PostMapping
     public ResponseEntity<Pedido> save(@RequestBody Pedido pedido) {
         pedido.setId(null);
@@ -116,6 +123,7 @@ public class PedidoController {
         @ApiResponse(responseCode = "204", description = "Pedido eliminado correctamente"),
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
     })
+    // HTTP DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         if (pedidoService.findById(id).isEmpty()) {
@@ -123,5 +131,25 @@ public class PedidoController {
         }
         pedidoService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Cascade / Maestro → Detalle / Persistencia automática
+    @Operation(summary = "Guardar pedido con detalles (Cascade)", description = "Crea un pedido y sus detalles en una sola peticion. La persistencia de los detalles ocurre automaticamente gracias a CascadeType.ALL.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Pedido con detalles creado correctamente",
+                     content = @Content(schema = @Schema(implementation = PedidoConDetallesResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Mesa o platillo no encontrado"),
+        @ApiResponse(responseCode = "400", description = "Solicitud invalida")
+    })
+    // HTTP POST
+    @PostMapping("/con-detalles")
+    public ResponseEntity<?> guardarConDetalles(@RequestBody PedidoConDetallesRequest request) {
+        try {
+            PedidoConDetallesResponse response = pedidoService.guardarConDetalles(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

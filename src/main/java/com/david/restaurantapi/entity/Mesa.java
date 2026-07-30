@@ -23,6 +23,7 @@ import java.util.List;
  *
  * @author David Morales Guerrero
  */
+// JPA / Hibernate
 @Entity
 @Table(name = "restaurant_tables")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -32,7 +33,7 @@ public class Mesa {
     // Atributos
     // ----------------------------------------------------
 
-    /** Identificador de la mesa. */
+    // Primary Key
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Identificador generado automaticamente por la base de datos")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,9 +58,7 @@ public class Mesa {
     // Relaciones
     // ----------------------------------------------------
 
-    /**
-     * Pedidos de la mesa.
-     */
+    // OneToMany / Cascade
     @OneToMany(mappedBy = "mesa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pedido> pedidos = new ArrayList<>();
 

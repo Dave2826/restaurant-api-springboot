@@ -22,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author David Morales Guerrero
  */
 @Component
+// JWT Filter / OncePerRequestFilter
 public class JwtFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
@@ -72,6 +73,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request));
+                    // Authentication
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                     log.info("=== [JwtFilter] Usuario autenticado correctamente en SecurityContext");
                 }

@@ -10,7 +10,9 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author David Morales Guerrero
  */
+// Repository / JPA
 public interface UsuarioRepository extends CrudRepository<Usuario, Integer> {
 
+    // Optional / Query Method
     Optional<Usuario> findByUsername(String username);
 }

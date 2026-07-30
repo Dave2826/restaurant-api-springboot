@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author David Morales Guerrero
  */
+// Repository / JPA / Spring Data
 public interface PedidoRepository extends CrudRepository<Pedido, Integer> {
 
     List<Pedido> findByMesaId(Integer mesaId);

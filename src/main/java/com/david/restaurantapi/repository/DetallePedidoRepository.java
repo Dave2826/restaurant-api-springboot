@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author David Morales Guerrero
  */
+// Repository / JPA
 public interface DetallePedidoRepository extends CrudRepository<DetallePedido, Integer> {
 
     List<DetallePedido> findByPedidoId(Integer pedidoId);

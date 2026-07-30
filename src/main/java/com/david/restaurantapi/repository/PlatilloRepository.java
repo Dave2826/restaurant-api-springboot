@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author David Morales Guerrero
  */
+// Repository / JPA
 public interface PlatilloRepository extends CrudRepository<Platillo, Integer> {
 
     List<Platillo> findByCategoria(String categoria);

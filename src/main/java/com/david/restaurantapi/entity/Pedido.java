@@ -27,6 +27,7 @@ import java.util.List;
  *
  * @author David Morales Guerrero
  */
+// JPA / Hibernate
 @Entity
 @Table(name = "orders")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -36,7 +37,7 @@ public class Pedido {
     // Atributos
     // ----------------------------------------------------
 
-    /** Identificador del pedido. */
+    // Primary Key
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Identificador generado automaticamente por la base de datos")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,14 +61,12 @@ public class Pedido {
     // Relaciones
     // ----------------------------------------------------
 
-    /** Mesa del pedido. */
+    // Foreign Key / ManyToOne
     @ManyToOne
     @JoinColumn(name = "restaurant_table_id", nullable = false)
     private Mesa mesa;
 
-    /**
-     * Detalles del pedido.
-     */
+    // Cascade / OneToMany / orphanRemoval
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePedido> detalles = new ArrayList<>();
 

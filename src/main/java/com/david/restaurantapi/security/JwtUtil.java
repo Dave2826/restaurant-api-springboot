@@ -14,8 +14,10 @@ import org.springframework.stereotype.Component;
  * @author David Morales Guerrero
  */
 @Component
+// JWT / HS256
 public class JwtUtil {
 
+    // SecretKey
     private final SecretKey secretKey;
     private final long expiration;
 
@@ -39,6 +41,7 @@ public class JwtUtil {
                 .subject(username)
                 .issuedAt(now)
                 .expiration(expiryDate)
+                // HS256
                 .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }

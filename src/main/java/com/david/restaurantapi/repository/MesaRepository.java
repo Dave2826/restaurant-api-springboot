@@ -10,7 +10,9 @@ import org.springframework.data.repository.CrudRepository;
  *
  * @author David Morales Guerrero
  */
+// Repository / JPA
 public interface MesaRepository extends CrudRepository<Mesa, Integer> {
 
+    // Optional / Query Method
     Optional<Mesa> findByNumeroMesa(Integer numeroMesa);
 }

@@ -28,8 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/detalles-pedido")
 @SecurityRequirement(name = "bearerAuth")
+// REST Endpoint
 public class DetallePedidoController {
 
+    // Dependency Injection
     private final DetallePedidoService detallePedidoService;
 
     public DetallePedidoController(DetallePedidoService detallePedidoService) {
@@ -47,6 +49,7 @@ public class DetallePedidoController {
                      content = @Content(mediaType = "application/json",
                                         array = @ArraySchema(schema = @Schema(implementation = DetallePedido.class))))
     })
+    // HTTP GET
     @GetMapping
     public ResponseEntity<Iterable<DetallePedido>> findAll() {
         return ResponseEntity.ok(detallePedidoService.findAll());
@@ -81,6 +84,7 @@ public class DetallePedidoController {
         @ApiResponse(responseCode = "201", description = "Detalle creado correctamente"),
         @ApiResponse(responseCode = "400", description = "Solicitud invalida, verifique los datos enviados")
     })
+    // HTTP POST
     @PostMapping
     public ResponseEntity<DetallePedido> save(@RequestBody DetallePedido detallePedido) {
         detallePedido.setId(null);
@@ -99,6 +103,7 @@ public class DetallePedidoController {
         @ApiResponse(responseCode = "204", description = "Detalle eliminado correctamente"),
         @ApiResponse(responseCode = "404", description = "Detalle no encontrado")
     })
+    // HTTP DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         if (detallePedidoService.findById(id).isEmpty()) {
