@@ -14,7 +14,7 @@ API REST desarrollada con Spring Boot para la gestión integral de un sistema de
 | JWT (jjwt 0.12.6) | Generación y validación de tokens |
 | PostgreSQL | Base de datos relacional |
 | Hibernate | ORM y mapeo objeto-relacional |
-| MapStruct 1.6.3 | Mapeo entre entidades y DTOs |
+| DTOs | Transferencia de datos entre solicitudes y respuestas de la API |
 | Swagger OpenAPI (springdoc 2.8.6) | Documentación interactiva de la API |
 | Gradle | Herramienta de construcción |
 
@@ -32,6 +32,40 @@ security     — Configuración de seguridad. Filtro JWT, utilería de tokens y 
 config       — Configuraciones adicionales. Seguridad HTTP, Swagger/OpenAPI, CORS.
 ```
 
+## Diagrama de arquitectura
+
+```mermaid
+flowchart TD
+
+    Cliente[Cliente / Swagger UI]
+
+    Security[Security Filter Chain<br/>JWT + BCrypt]
+
+    Controller[Controllers REST]
+
+    Service[Services<br/>Lógica de negocio]
+
+    Repository[Repositories<br/>Spring Data JPA]
+
+    Entity[Entities<br/>JPA Hibernate]
+
+    DB[(PostgreSQL)]
+
+    Cliente --> Security
+
+    Security --> Controller
+
+    Controller --> Service
+
+    Service --> Repository
+
+    Repository --> Entity
+
+    Entity --> DB
+```
+
+El sistema utiliza una arquitectura por capas donde los controladores reciben solicitudes HTTP, los servicios contienen la lógica de negocio, los repositorios gestionan la persistencia mediante JPA/Hibernate y PostgreSQL almacena la información. La seguridad se maneja mediante Spring Security utilizando autenticación JWT.
+
 ## Funcionalidades implementadas
 
 ### Mesas
@@ -45,6 +79,9 @@ config       — Configuraciones adicionales. Seguridad HTTP, Swagger/OpenAPI, C
 ### Pedidos
 - CRUD completo de pedidos.
 - Consulta por estado (pendiente, preparación, listo, entregado, pagado).
+- Creación de pedidos completos con detalles mediante DTO.
+- Persistencia automática de DetallePedido utilizando CascadeType.ALL.
+- La relación maestro-detalle permite guardar un Pedido y sus Detalles asociados en una sola operación.
 
 ### Detalles de pedido
 - Gestión de cantidades y precio unitario.
@@ -137,6 +174,16 @@ La contraseña está almacenada en la base de datos mediante BCrypt.
 | GET | `/api/pedidos/{id}` | Obtener pedido por ID |
 | GET | `/api/pedidos/estado/{estado}` | Obtener pedidos por estado |
 | DELETE | `/api/pedidos/{id}` | Eliminar pedido por ID |
+| POST | `/api/pedidos/con-detalles` | Crear un pedido junto con sus detalles utilizando CascadeType.ALL |
+
+### Detalles de pedido
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/detalles-pedido` | Obtener todos los detalles de pedidos |
+| POST | `/api/detalles-pedido` | Crear un detalle de pedido |
+| GET | `/api/detalles-pedido/{id}` | Obtener detalle de pedido por ID |
+| DELETE | `/api/detalles-pedido/{id}` | Eliminar detalle de pedido por ID |
 
 ## Swagger
 
@@ -149,7 +196,7 @@ http://localhost:8080/swagger-ui/index.html
 Swagger permite:
 - Explorar y probar todos los endpoints disponibles.
 - Obtener un token JWT mediante el endpoint de login.
-- Autorizar las solicitudes usando el botón **Authorize** con el token JWT.
+- Autorizar las solicitudes usando el botón **Authorize** ingresando únicamente el token JWT. Swagger agrega automáticamente el prefijo Bearer en las solicitudes HTTP.
 - Visualizar los esquemas de petición y respuesta de cada operación.
 
 ## Configuración y ejecución
@@ -207,6 +254,8 @@ La aplicación se iniciará en `http://localhost:8080`.
 - `GET /api/platillos` sin token responde `401 Unauthorized`.
 - `GET /api/platillos` con token JWT válido responde `200 OK` con la lista de platillos.
 - Swagger UI permite autorizar y probar todos los endpoints protegidos correctamente.
+- POST /api/pedidos/con-detalles crea correctamente un Pedido y sus DetallePedido asociados.
+- La persistencia Cascade fue comprobada verificando la creación automática de registros relacionados en PostgreSQL.
 
 ## Autor
 
