@@ -13,4 +13,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface PedidoRepository extends CrudRepository<Pedido, Integer> {
 
     List<Pedido> findByMesaId(Integer mesaId);
+
+    List<Pedido> findByEstado(String estado);
 }

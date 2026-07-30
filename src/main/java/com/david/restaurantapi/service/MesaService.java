@@ -40,6 +40,16 @@ public class MesaService {
     }
 
     /**
+     * Busca una mesa por su numero de mesa.
+     *
+     * @param numeroMesa numero de la mesa a buscar
+     * @return un Optional con la mesa encontrada, o vacio si no existe
+     */
+    public Optional<Mesa> findByNumeroMesa(Integer numeroMesa) {
+        return mesaRepository.findByNumeroMesa(numeroMesa);
+    }
+
+    /**
      * Guarda una nueva mesa en el sistema.
      *
      * @param mesa la mesa a guardar

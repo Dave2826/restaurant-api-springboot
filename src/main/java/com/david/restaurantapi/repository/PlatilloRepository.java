@@ -1,6 +1,7 @@
 package com.david.restaurantapi.repository;
 
 import com.david.restaurantapi.entity.Platillo;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -10,4 +11,6 @@ import org.springframework.data.repository.CrudRepository;
  * @author David Morales Guerrero
  */
 public interface PlatilloRepository extends CrudRepository<Platillo, Integer> {
+
+    List<Platillo> findByCategoria(String categoria);
 }

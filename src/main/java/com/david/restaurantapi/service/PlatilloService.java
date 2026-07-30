@@ -2,6 +2,7 @@ package com.david.restaurantapi.service;
 
 import com.david.restaurantapi.entity.Platillo;
 import com.david.restaurantapi.repository.PlatilloRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,16 @@ public class PlatilloService {
      */
     public Optional<Platillo> findById(Integer id) {
         return platilloRepository.findById(id);
+    }
+
+    /**
+     * Busca platillos por su categoria.
+     *
+     * @param categoria categoria de los platillos a buscar
+     * @return lista de platillos de la categoria indicada
+     */
+    public List<Platillo> findByCategoria(String categoria) {
+        return platilloRepository.findByCategoria(categoria);
     }
 
     /**

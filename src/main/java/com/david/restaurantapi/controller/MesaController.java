@@ -2,6 +2,9 @@ package com.david.restaurantapi.controller;
 
 import com.david.restaurantapi.entity.Mesa;
 import com.david.restaurantapi.service.MesaService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,6 +36,10 @@ public class MesaController {
      *
      * @return lista de todas las mesas
      */
+    @Operation(summary = "Obtener todas las mesas", description = "Devuelve la lista completa de mesas registradas en el restaurante.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista de mesas obtenida correctamente")
+    })
     @GetMapping
     public ResponseEntity<Iterable<Mesa>> findAll() {
         return ResponseEntity.ok(mesaService.findAll());
@@ -44,9 +51,32 @@ public class MesaController {
      * @param id identificador de la mesa
      * @return la mesa encontrada o 404 si no existe
      */
+    @Operation(summary = "Buscar mesa por ID", description = "Devuelve una mesa segun su identificador unico.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesa encontrada"),
+        @ApiResponse(responseCode = "404", description = "Mesa no encontrada")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Mesa> findById(@PathVariable Integer id) {
         return mesaService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Busca una mesa por su numero de mesa.
+     *
+     * @param numeroMesa numero de la mesa a buscar
+     * @return la mesa encontrada o 404 si no existe
+     */
+    @Operation(summary = "Buscar mesa por numero", description = "Devuelve una mesa segun su numero de mesa.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Mesa encontrada"),
+        @ApiResponse(responseCode = "404", description = "Mesa no encontrada")
+    })
+    @GetMapping("/numero/{numeroMesa}")
+    public ResponseEntity<Mesa> findByNumeroMesa(@PathVariable Integer numeroMesa) {
+        return mesaService.findByNumeroMesa(numeroMesa)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -57,6 +87,10 @@ public class MesaController {
      * @param mesa la mesa a guardar
      * @return la mesa guardada
      */
+    @Operation(summary = "Guardar nueva mesa", description = "Registra una nueva mesa en el sistema.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Mesa creada correctamente")
+    })
     @PostMapping
     public ResponseEntity<Mesa> save(@RequestBody Mesa mesa) {
         Mesa saved = mesaService.save(mesa);
@@ -69,6 +103,11 @@ public class MesaController {
      * @param id identificador de la mesa a eliminar
      * @return 204 si se elimino correctamente, 404 si no existe
      */
+    @Operation(summary = "Eliminar mesa por ID", description = "Elimina una mesa del sistema segun su identificador.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Mesa eliminada correctamente"),
+        @ApiResponse(responseCode = "404", description = "Mesa no encontrada")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
         if (mesaService.findById(id).isEmpty()) {

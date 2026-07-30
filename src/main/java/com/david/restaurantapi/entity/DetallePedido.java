@@ -1,5 +1,7 @@
 package com.david.restaurantapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,14 +34,17 @@ public class DetallePedido {
     private Integer id;
 
     /** Cantidad del producto. */
+    @Schema(example = "2")
     @Column(nullable = false)
     private Integer cantidad;
 
     /** Precio unitario del producto. */
+    @Schema(example = "180.00")
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
     /** Subtotal del detalle. */
+    @Schema(example = "360.00")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
@@ -47,12 +52,18 @@ public class DetallePedido {
     // Relaciones
     // ----------------------------------------------------
 
-    /** Pedido al que pertenece. */
+    /**
+     * Pedido al que pertenece.
+     */
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Pedido pedido;
 
-    /** Platillo solicitado. */
+    /**
+     * Platillo solicitado.
+     */
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "dish_id", nullable = false)
     private Platillo platillo;

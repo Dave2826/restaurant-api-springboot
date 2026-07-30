@@ -1,5 +1,7 @@
 package com.david.restaurantapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Representa una mesa fisica del restaurante.
@@ -33,14 +36,17 @@ public class Mesa {
     private Integer id;
 
     /** Numero de la mesa. */
+    @Schema(example = "4")
     @Column(name = "table_number", nullable = false, unique = true)
     private Integer numeroMesa;
 
     /** Capacidad de la mesa. */
+    @Schema(example = "4")
     @Column(nullable = false)
     private Integer capacidad;
 
     /** Ubicacion de la mesa. */
+    @Schema(example = "Terraza")
     @Column(length = 100)
     private String ubicacion;
 
@@ -48,7 +54,10 @@ public class Mesa {
     // Relaciones
     // ----------------------------------------------------
 
-    /** Pedidos de la mesa. */
+    /**
+     * Pedidos de la mesa.
+     */
+    @JsonIgnore
     @OneToMany(mappedBy = "mesa", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pedido> pedidos = new ArrayList<>();
 

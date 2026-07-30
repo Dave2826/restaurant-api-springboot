@@ -2,6 +2,7 @@ package com.david.restaurantapi.service;
 
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.repository.PedidoRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,16 @@ public class PedidoService {
      */
     public Optional<Pedido> findById(Integer id) {
         return pedidoRepository.findById(id);
+    }
+
+    /**
+     * Busca pedidos por su estado.
+     *
+     * @param estado estado de los pedidos a buscar
+     * @return lista de pedidos con el estado indicado
+     */
+    public List<Pedido> findByEstado(String estado) {
+        return pedidoRepository.findByEstado(estado);
     }
 
     /**

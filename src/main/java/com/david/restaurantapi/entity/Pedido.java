@@ -1,5 +1,7 @@
 package com.david.restaurantapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,10 +44,12 @@ public class Pedido {
     private LocalDateTime fechaPedido;
 
     /** Estado del pedido. */
+    @Schema(example = "COMPLETED")
     @Column(nullable = false, length = 50)
     private String estado;
 
     /** Total del pedido. */
+    @Schema(example = "430.00")
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
@@ -58,7 +62,10 @@ public class Pedido {
     @JoinColumn(name = "restaurant_table_id", nullable = false)
     private Mesa mesa;
 
-    /** Detalles del pedido. */
+    /**
+     * Detalles del pedido.
+     */
+    @JsonIgnore
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePedido> detalles = new ArrayList<>();
 

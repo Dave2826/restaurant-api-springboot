@@ -1,5 +1,7 @@
 package com.david.restaurantapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,22 +36,27 @@ public class Platillo {
     private Integer id;
 
     /** Nombre del platillo. */
+    @Schema(example = "Hamburguesa BBQ")
     @Column(nullable = false, length = 150)
     private String nombre;
 
     /** Descripcion del platillo. */
+    @Schema(example = "Carne premium con salsa BBQ")
     @Column(length = 500)
     private String descripcion;
 
     /** Precio del platillo. */
+    @Schema(example = "220.00")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
 
     /** Categoria del platillo. */
+    @Schema(example = "Hamburguesas")
     @Column(length = 100)
     private String categoria;
 
     /** Indica si el platillo esta disponible. */
+    @Schema(example = "true")
     @Column(nullable = false)
     private Boolean disponible;
 
@@ -57,7 +64,10 @@ public class Platillo {
     // Relaciones
     // ----------------------------------------------------
 
-    /** Detalles de pedido que incluyen este platillo. */
+    /**
+     * Detalles de pedido que incluyen este platillo.
+     */
+    @JsonIgnore
     @OneToMany(mappedBy = "platillo")
     private List<DetallePedido> detallesPedido = new ArrayList<>();
 
