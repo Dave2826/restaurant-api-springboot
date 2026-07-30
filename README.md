@@ -66,8 +66,9 @@ El flujo de autenticación funciona de la siguiente manera:
 
 **Petición:**
 
+`POST /auth/login`
+
 ```json
-POST /auth/login
 {
     "username": "admin",
     "password": "1234"
@@ -93,7 +94,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 ## Usuario de prueba
 
 | Campo | Valor |
-|-------|-------|
+| --- | --- |
 | Usuario | `admin` |
 | Password | `1234` |
 | Rol | `ADMIN` |
@@ -151,7 +152,7 @@ Swagger permite:
 - Autorizar las solicitudes usando el botón **Authorize** con el token JWT.
 - Visualizar los esquemas de petición y respuesta de cada operación.
 
-## Configuracion y ejecución
+## Configuración y ejecución
 
 ### Requisitos
 
