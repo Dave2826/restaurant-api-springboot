@@ -3,12 +3,14 @@ package com.david.restaurantapi.controller;
 import com.david.restaurantapi.entity.DetallePedido;
 import com.david.restaurantapi.service.DetallePedidoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/detalles-pedido")
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Detalles de Pedido", description = "Operaciones CRUD para detalles de pedido")
 // REST Endpoint
 public class DetallePedidoController {
 
@@ -67,7 +70,7 @@ public class DetallePedidoController {
         @ApiResponse(responseCode = "404", description = "Detalle no encontrado")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<DetallePedido> findById(@PathVariable Integer id) {
+    public ResponseEntity<DetallePedido> findById(@Parameter(example = "8") @PathVariable Integer id) {
         return detallePedidoService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -105,7 +108,7 @@ public class DetallePedidoController {
     })
     // HTTP DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteById(@Parameter(example = "12") @PathVariable Integer id) {
         if (detallePedidoService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }

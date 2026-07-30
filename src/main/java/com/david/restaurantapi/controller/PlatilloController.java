@@ -3,12 +3,14 @@ package com.david.restaurantapi.controller;
 import com.david.restaurantapi.entity.Platillo;
 import com.david.restaurantapi.service.PlatilloService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/platillos")
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Platillos", description = "Operaciones CRUD para platillos del menú")
 public class PlatilloController {
 
     private final PlatilloService platilloService;
@@ -65,7 +68,7 @@ public class PlatilloController {
         @ApiResponse(responseCode = "404", description = "Platillo no encontrado")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Platillo> findById(@PathVariable Integer id) {
+    public ResponseEntity<Platillo> findById(@Parameter(example = "3") @PathVariable Integer id) {
         return platilloService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -82,7 +85,7 @@ public class PlatilloController {
         @ApiResponse(responseCode = "200", description = "Lista de platillos obtenida correctamente")
     })
     @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Platillo>> findByCategoria(@PathVariable String categoria) {
+    public ResponseEntity<List<Platillo>> findByCategoria(@Parameter(example = "Hamburguesas") @PathVariable String categoria) {
         List<Platillo> platillos = platilloService.findByCategoria(categoria);
         return ResponseEntity.ok(platillos);
     }
@@ -117,7 +120,7 @@ public class PlatilloController {
         @ApiResponse(responseCode = "404", description = "Platillo no encontrado")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteById(@Parameter(example = "7") @PathVariable Integer id) {
         if (platilloService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }

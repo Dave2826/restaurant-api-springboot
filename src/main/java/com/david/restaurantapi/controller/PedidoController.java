@@ -5,14 +5,15 @@ import com.david.restaurantapi.dto.PedidoConDetallesResponse;
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/pedidos")
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Pedidos", description = "Operaciones CRUD para pedidos y Cascade")
 // REST Endpoint
 public class PedidoController {
 
@@ -71,7 +73,7 @@ public class PedidoController {
         @ApiResponse(responseCode = "404", description = "Pedido no encontrado")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Pedido> findById(@PathVariable Integer id) {
+    public ResponseEntity<Pedido> findById(@Parameter(example = "4") @PathVariable Integer id) {
         return pedidoService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -88,7 +90,7 @@ public class PedidoController {
         @ApiResponse(responseCode = "200", description = "Lista de pedidos obtenida correctamente")
     })
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<Pedido>> findByEstado(@PathVariable String estado) {
+    public ResponseEntity<List<Pedido>> findByEstado(@Parameter(example = "COMPLETED") @PathVariable String estado) {
         List<Pedido> pedidos = pedidoService.findByEstado(estado);
         return ResponseEntity.ok(pedidos);
     }
@@ -125,7 +127,7 @@ public class PedidoController {
     })
     // HTTP DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteById(@Parameter(example = "6") @PathVariable Integer id) {
         if (pedidoService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
@@ -143,13 +145,12 @@ public class PedidoController {
     })
     // HTTP POST
     @PostMapping("/con-detalles")
-    public ResponseEntity<?> guardarConDetalles(@RequestBody PedidoConDetallesRequest request) {
+    public ResponseEntity<PedidoConDetallesResponse> guardarConDetalles(@RequestBody PedidoConDetallesRequest request) {
         try {
             PedidoConDetallesResponse response = pedidoService.guardarConDetalles(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 }
