@@ -1,7 +1,7 @@
 package com.david.restaurantapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,6 +59,7 @@ public class DetallePedido {
     // Foreign Key / ManyToOne
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Pedido pedido;
 
     /**
@@ -66,6 +67,7 @@ public class DetallePedido {
      */
     @ManyToOne
     @JoinColumn(name = "dish_id", nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Platillo platillo;
 
     // ----------------------------------------------------
@@ -112,8 +114,7 @@ public class DetallePedido {
         this.subtotal = subtotal;
     }
 
-    @JsonIgnore
-    @Schema(description = "Pedido al que pertenece. Enviar únicamente el ID.", example = "{\"id\": 1}")
+    @Schema(description = "Pedido al que pertenece. Enviar únicamente el ID.", example = "{\"id\":1}")
     public Pedido getPedido() {
         return pedido;
     }
@@ -122,8 +123,7 @@ public class DetallePedido {
         this.pedido = pedido;
     }
 
-    @JsonIgnore
-    @Schema(description = "Platillo solicitado. Enviar únicamente el ID.", example = "{\"id\": 1}")
+    @Schema(description = "Platillo solicitado. Enviar únicamente el ID.", example = "{\"id\":1}")
     public Platillo getPlatillo() {
         return platillo;
     }

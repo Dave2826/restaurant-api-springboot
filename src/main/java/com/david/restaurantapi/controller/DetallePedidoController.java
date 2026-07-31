@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -89,7 +90,14 @@ public class DetallePedidoController {
     })
     // HTTP POST
     @PostMapping
-    public ResponseEntity<DetallePedido> save(@RequestBody DetallePedido detallePedido) {
+    public ResponseEntity<DetallePedido> save(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                content = @Content(
+                    examples = @ExampleObject(
+                        value = "{\"cantidad\":2,\"precioUnitario\":180,\"subtotal\":360,\"pedido\":{\"id\":1},\"platillo\":{\"id\":1}}")
+                )
+            )
+            @RequestBody DetallePedido detallePedido) {
         detallePedido.setId(null);
         DetallePedido saved = detallePedidoService.save(detallePedido);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);

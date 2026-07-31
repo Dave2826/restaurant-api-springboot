@@ -1,7 +1,12 @@
 package com.david.restaurantapi.service;
 
 import com.david.restaurantapi.entity.DetallePedido;
+import com.david.restaurantapi.entity.Pedido;
+import com.david.restaurantapi.entity.Platillo;
 import com.david.restaurantapi.repository.DetallePedidoRepository;
+import com.david.restaurantapi.repository.PedidoRepository;
+import com.david.restaurantapi.repository.PlatilloRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +22,15 @@ public class DetallePedidoService {
 
     // Dependency Injection
     private final DetallePedidoRepository detallePedidoRepository;
+    private final PedidoRepository pedidoRepository;
+    private final PlatilloRepository platilloRepository;
 
-    public DetallePedidoService(DetallePedidoRepository detallePedidoRepository) {
+    public DetallePedidoService(DetallePedidoRepository detallePedidoRepository,
+                                PedidoRepository pedidoRepository,
+                                PlatilloRepository platilloRepository) {
         this.detallePedidoRepository = detallePedidoRepository;
+        this.pedidoRepository = pedidoRepository;
+        this.platilloRepository = platilloRepository;
     }
 
     /**
@@ -49,6 +60,12 @@ public class DetallePedidoService {
      * @return el detalle de pedido guardado
      */
     public DetallePedido save(DetallePedido detallePedido) {
+        Pedido pedido = pedidoRepository.findById(detallePedido.getPedido().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con id: " + detallePedido.getPedido().getId()));
+        Platillo platillo = platilloRepository.findById(detallePedido.getPlatillo().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Platillo no encontrado con id: " + detallePedido.getPlatillo().getId()));
+        detallePedido.setPedido(pedido);
+        detallePedido.setPlatillo(platillo);
         return detallePedidoRepository.save(detallePedido);
     }
 
