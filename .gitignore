@@ -17,3 +17,8 @@ bin/
 *~
 .DS_Store
 Thumbs.db
+
+# Credenciales de Firebase Admin (nunca deben versionarse)
+*firebase-adminsdk*.json
+serviceAccount*.json
+*-service-account.json

@@ -32,3 +32,14 @@ server:
 jwt:
   secret: "clave-segura-para-restaurant-api-con-minimo-32-caracteres-2026"
   expiration: 86400000
+
+# Configuracion de Firebase Admin
+# Desactivado por defecto: el backend arranca sin credenciales de Firebase y
+# el login legado (/auth/login) no se ve afectado.
+# Las credenciales se resuelven con Google Application Default Credentials
+# (GOOGLE_APPLICATION_CREDENTIALS), siempre fuera del repositorio y de la app.
+firebase:
+  enabled: ${FIREBASE_ENABLED:false}
+  project-id: ${FIREBASE_PROJECT_ID:flutter-spring-test-73f45}
+  allowed-domain: ${FIREBASE_ALLOWED_DOMAIN:tecdesoftware.edu.mx}
+  require-verified-email: ${FIREBASE_REQUIRE_VERIFIED_EMAIL:true}
