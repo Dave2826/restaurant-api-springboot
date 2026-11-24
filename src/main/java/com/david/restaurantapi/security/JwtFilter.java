@@ -55,19 +55,13 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader
                 .replace("Bearer ", "")
                 .replaceAll("\\s+", "")
-                .trim();            String username = jwtUtil.extractUsername(token);
-            log.info("=== [JwtFilter] Token recibido longitud: {}", token.length());
+                .trim();
+            String username = jwtUtil.extractUsername(token);
+
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                log.info("=== [JwtFilter] UserDetails cargado - username: {}, authorities: {}",
-                        userDetails.getUsername(), userDetails.getAuthorities());
-                log.info("=== [JwtFilter] Token limpio longitud: {}", token.length());
-                log.info("=== [JwtFilter] Token limpio: {}", token);
 
-                boolean tokenValido = jwtUtil.isTokenValid(token, userDetails.getUsername());
-                log.info("=== [JwtFilter] Resultado isTokenValid: {}", tokenValido);
-
-                if (tokenValido) {
+                if (jwtUtil.isTokenValid(token, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails, null, userDetails.getAuthorities());
@@ -75,7 +69,6 @@ public class JwtFilter extends OncePerRequestFilter {
                             new WebAuthenticationDetailsSource().buildDetails(request));
                     // Authentication
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.info("=== [JwtFilter] Usuario autenticado correctamente en SecurityContext");
                 }
             }
         } catch (Exception e) {
