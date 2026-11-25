@@ -25,9 +25,11 @@ public class AuthController {
 
     // Dependency Injection
     private final AuthService authService;
+    private final FirebaseLoginService firebaseLoginService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, FirebaseLoginService firebaseLoginService) {
         this.authService = authService;
+        this.firebaseLoginService = firebaseLoginService;
     }
 
     /**
@@ -45,6 +47,29 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         Map<String, String> response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Inicia sesion con Firebase Authentication y devuelve el JWT del backend.
+     *
+     * @param request ID Token emitido por Firebase en el cliente
+     * @return token JWT propio, con la misma forma que {@code /auth/login}
+     */
+    @Operation(
+            summary = "Iniciar sesión con Firebase",
+            description = "Verifica el ID Token de Firebase, aprovisiona al usuario en el backend "
+                    + "si es su primer acceso y genera un token JWT propio para acceder a la API.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Autenticación exitosa, token JWT generado"),
+        @ApiResponse(responseCode = "401", description = "ID Token inválido o expirado"),
+        @ApiResponse(responseCode = "403", description = "Dominio no institucional o correo sin verificar"),
+        @ApiResponse(responseCode = "503", description = "Integración con Firebase no habilitada")
+    })
+    @PostMapping("/firebase")
+    public ResponseEntity<Map<String, String>> loginWithFirebase(
+            @RequestBody FirebaseLoginRequest request) {
+        Map<String, String> response = firebaseLoginService.login(request);
         return ResponseEntity.ok(response);
     }
 }
