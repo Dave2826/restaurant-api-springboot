@@ -130,7 +130,34 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
 ### Inicio de sesión con Firebase
 
-Cuando `firebase.enabled=true` y Google Application Default Credentials están disponibles, el cliente obtiene el ID Token de Firebase y lo canjea por el JWT del backend. El cliente **nunca envía identidad ni rol**: el backend verifica la firma del token con el SDK oficial y decide todo lo demás.
+Cuando `firebase.enabled=true` y Google Application Default Credentials (ADC) están disponibles, Flutter obtiene un Firebase ID Token y lo canjea por el JWT propio del backend. El cliente **nunca envía identidad ni rol**: Spring Boot verifica el token con Firebase Admin y decide el aprovisionamiento y los permisos.
+
+**Flujo de extremo a extremo verificado:**
+
+```mermaid
+flowchart LR
+    A[Flutter] --> B[Firebase Authentication]
+    B --> C[Firebase ID Token]
+    C --> D[POST /auth/firebase]
+    D --> E[Spring Boot + Firebase Admin]
+    E --> F[Verificación de token y política institucional]
+    F --> G[Usuario en PostgreSQL]
+    G --> H[JWT propio del backend]
+    H --> I[GET /api/platillos]
+    I --> J[Catálogo PostgreSQL]
+```
+
+1. Flutter registra/inicia sesión mediante Firebase Authentication y obtiene un ID Token.
+2. Flutter envía ese token a `POST /auth/firebase`.
+3. Firebase Admin valida la firma, vigencia y revocación (`verifyIdToken(idToken, true)`).
+4. El backend aplica la política de dominio institucional (`tecdesoftware.edu.mx`) y, si `FIREBASE_REQUIRE_VERIFIED_EMAIL=true`, exige el correo verificado.
+5. Si el UID no existe en `users`, se aprovisiona como `username` con rol `USER` y una contraseña aleatoria inutilizable. Si ya existe, se reutiliza.
+6. `JwtUtil` emite el JWT HS256 propio, que es la credencial para `/api/**`.
+7. Flutter consume `GET /api/platillos` con `Authorization: Bearer <JWT del backend>`; el catálogo se obtiene de PostgreSQL.
+
+El flujo real Flutter → Firebase Authentication → ID Token → Spring Boot/Firebase Admin → aprovisionamiento PostgreSQL → JWT del backend → catálogo protegido fue comprobado manualmente con credenciales reales. La consulta del catálogo mostró 15 platillos.
+
+**Política de correo verificado:** la configuración versionada exige verificación por defecto (`FIREBASE_REQUIRE_VERIFIED_EMAIL=true`). Para la comprobación end-to-end actual se desactivó temporalmente mediante la configuración local; no se debe tomar ese ajuste temporal como política de despliegue. En instalaciones y uso normal, mantén la exigencia activada.
 
 **Petición:**
 
@@ -150,20 +177,18 @@ Cuando `firebase.enabled=true` y Google Application Default Credentials están d
 }
 ```
 
-Comportamiento:
-
-1. `FirebaseTokenVerifier` verifica el ID Token (incluida la revocación), el dominio institucional y, por defecto, que el correo esté verificado.
-2. Si el usuario no existe en la tabla `users`, se aprovisiona con el UID de Firebase como `username`, rol `USER` y una contraseña aleatoria inservible (no se guarda la contraseña de Firebase).
-3. `JwtUtil` emite el JWT HS256 propio, que es el único válido para `/api/**`.
-
 | Código | Significado |
 |--------|-------------|
 | 200 | ID Token válido; se devuelve el JWT del backend. |
 | 401 | ID Token ausente, inválido, expirado o revocado. |
-| 403 | Correo de otro dominio o correo institucional sin verificar. |
-| 503 | Firebase no está habilitado o no tiene credenciales en el servidor. |
+| 403 | Dominio no permitido o correo sin verificar cuando la política está activa. |
+| 503 | Integración Firebase deshabilitada. |
+
+Si Firebase se habilita pero ADC no está disponible o es inválido, la inicialización de Firebase Admin puede impedir que la aplicación arranque; no es necesariamente una respuesta HTTP 503.
 
 > El cliente debe enviar `Accept: application/json`. El proyecto registra además un conversor XML (por Springdoc), por lo que una petición con `Accept: */*` puede recibir XML.
+
+
 
 ## Usuario de prueba
 
@@ -247,7 +272,7 @@ Swagger permite:
 
 ### Base de datos
 
-Crear una base de datos llamada `restaurant_db` en PostgreSQL. El usuario dedicado recomendado es `restaurant_app`:
+Crear una base de datos llamada `restaurant_db` en PostgreSQL. Para instalaciones nuevas, el usuario dedicado recomendado es `restaurant_app`:
 
 ```sql
 CREATE ROLE restaurant_app LOGIN PASSWORD '<contraseña>';
@@ -265,9 +290,37 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 
 Las tablas se crean automáticamente gracias a `ddl-auto: update`. Ese modo puede requerir además la propiedad de las tablas existentes o privilegios DDL equivalentes. La opción más simple es que `restaurant_app` sea propietario de la base (`ALTER DATABASE restaurant_db OWNER TO restaurant_app;`, requiere superusuario) o usar un usuario de migración con privilegios DDL.
 
+`deey1` es el usuario de PostgreSQL del entorno local actual; no es el nombre recomendado para instalaciones nuevas ni debe copiarse como valor predeterminado.
+
 ### Configuración local
 
-No se versiona ningún archivo con credenciales. La opción recomendada es definir las variables de entorno en el IDE o en la terminal. Si necesitas un archivo local, usa `src/main/resources/application-local.yml` (o `.yaml`), ignorado por Git, actívalo con `SPRING_PROFILES_ACTIVE=local` y declara `DB_USERNAME`, `DB_PASSWORD` y `JWT_SECRET` como claves de nivel superior.
+No se versiona ningún archivo con credenciales. La opción recomendada es definir las variables de entorno en el IDE o en la terminal. Si necesitas un archivo local, usa `src/main/resources/application-local.yml` (o `application-local.yaml`), ignorado por Git, actívalo con `SPRING_PROFILES_ACTIVE=local` y declara `DB_USERNAME`, `DB_PASSWORD` y `JWT_SECRET` como claves de nivel superior.
+
+| Variable | Uso | Valor por defecto/documentación |
+|---|---|---|
+| `DB_URL` | URL JDBC de PostgreSQL | `jdbc:postgresql://localhost:5432/restaurant_db` |
+| `DB_USERNAME` / `DB_PASSWORD` | Credenciales de PostgreSQL | Obligatorias |
+| `JWT_SECRET` | Clave para JWT HS256 | Obligatoria; mínimo 32 bytes |
+| `JWT_EXPIRATION` | Duración del JWT en ms | `86400000` (24 h) |
+| `FIREBASE_ENABLED` | Habilita Firebase Admin | `false` |
+| `FIREBASE_PROJECT_ID` | Proyecto Firebase | `flutter-spring-test-73f45` |
+| `FIREBASE_ALLOWED_DOMAIN` | Dominio institucional | `tecdesoftware.edu.mx` |
+| `FIREBASE_REQUIRE_VERIFIED_EMAIL` | Exige correo verificado | `true` |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Ruta al JSON de Service Account para ADC | Se define localmente, fuera del repositorio |
+
+Para habilitar Firebase localmente, define `FIREBASE_ENABLED=true` y proporciona ADC mediante `GOOGLE_APPLICATION_CREDENTIALS`, apuntando a un archivo de Service Account guardado fuera del repositorio y de la aplicación. No copies ni subas ese archivo, su contenido, tokens o claves al repositorio.
+
+Ejemplo de variables Firebase en PowerShell (ajusta la ruta segura del archivo):
+
+```powershell
+$env:FIREBASE_ENABLED = "true"
+$env:FIREBASE_PROJECT_ID = "flutter-spring-test-73f45"
+$env:FIREBASE_ALLOWED_DOMAIN = "tecdesoftware.edu.mx"
+$env:FIREBASE_REQUIRE_VERIFIED_EMAIL = "true"
+$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\ruta-segura\firebase-service-account.json"
+```
+
+La verificación del correo se mantuvo temporalmente desactivada durante la prueba end-to-end actual. Para reproducir esa prueba con un correo aún no verificado, el override local puede ser `FIREBASE_REQUIRE_VERIFIED_EMAIL=false`; restáuralo a `true` para el uso normal y no versionices ese override.
 
 ### Ejecución
 
@@ -284,6 +337,14 @@ gradlew bootRun
 ```
 
 La aplicación se iniciará en `http://localhost:8080`.
+
+## Estado de pendientes A1, A4 y A5
+
+Estos puntos de la revisión de API siguen pendientes; la integración Firebase (C2) es una funcionalidad implementada y verificada, no un pendiente de este listado.
+
+- **A1 — Validación de entradas y contrato de errores detallados:** pendiente. El arreglo `details` mostrado a continuación es el contrato previsto; aún no debe considerarse implementado.
+- **A4 — Autorización por roles:** pendiente. Actualmente `/api/**` requiere autenticación, pero la configuración no restringe los endpoints por roles específicos. El aprovisionamiento Firebase asigna `USER` en el servidor.
+- **A5 — Cobertura automatizada general:** pendiente. Hay pruebas unitarias de Firebase (verificador, servicio y controlador), pero no sustituyen la cobertura automatizada más amplia de reglas de negocio, endpoints ni una prueba end-to-end automatizada.
 
 ## Contrato de errores
 
@@ -307,6 +368,8 @@ Cuando A1 esté implementado, los errores de validación añadirán el arreglo `
 
 Este formato se aplica también a los errores 401 y 403 generados por Spring Security. Los 401 de recursos protegidos incluyen la cabecera `WWW-Authenticate: Bearer`; los 405 incluyen `Allow` con los métodos soportados.
 
+
+
 ### Códigos de respuesta HTTP
 
 | Código | Cuándo se devuelve |
@@ -320,14 +383,17 @@ Este formato se aplica también a los errores 401 y 403 generados por Spring Sec
 
 ## Evidencia de pruebas
 
-- `POST /auth/login` con credenciales válidas genera un token JWT correctamente.
-- `POST /auth/firebase` con un ID Token válido devuelve el JWT del backend y aprovisiona al usuario (verificado con pruebas automatizadas; falta la prueba de extremo a extremo con credenciales reales).
+- **Flujo Firebase end-to-end manual verificado:** Flutter → Firebase Authentication → ID Token → `POST /auth/firebase` → Firebase Admin (validación de token y revocación) → aprovisionamiento/reutilización del usuario en PostgreSQL → JWT del backend → `GET /api/platillos` protegido. El catálogo respondió con 15 platillos.
+- La prueba end-to-end se ejecutó con la exigencia de correo verificado temporalmente desactivada; la configuración versionada mantiene `FIREBASE_REQUIRE_VERIFIED_EMAIL=true` por defecto.
+- **Pruebas unitarias Firebase existentes:** cubren política de dominio, verificación/revocación solicitada, rechazo de tokens, servicio de aprovisionamiento y contrato del controlador. Utilizan mocks y no prueban la verificación criptográfica real ni automatizan el flujo end-to-end.
 - `POST /auth/firebase` con `firebase.enabled=false` responde `503` con un mensaje controlado.
 - `GET /api/platillos` sin token responde `401 Unauthorized`.
-- `GET /api/platillos` con token JWT válido responde `200 OK` con la lista de platillos.
-- Swagger UI permite autorizar y probar todos los endpoints protegidos correctamente.
-- POST /api/pedidos/con-detalles crea correctamente un Pedido y sus DetallePedido asociados.
+- `GET /api/platillos` con el JWT propio válido responde `200 OK` con el catálogo.
+- Swagger UI permite autorizar y probar los endpoints protegidos.
+- `POST /api/pedidos/con-detalles` crea correctamente un Pedido y sus DetallePedido asociados.
 - La persistencia Cascade fue comprobada verificando la creación automática de registros relacionados en PostgreSQL.
+
+
 
 ## Autor
 
