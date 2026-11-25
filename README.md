@@ -188,8 +188,6 @@ Si Firebase se habilita pero ADC no está disponible o es inválido, la iniciali
 
 > El cliente debe enviar `Accept: application/json`. El proyecto registra además un conversor XML (por Springdoc), por lo que una petición con `Accept: */*` puede recibir XML.
 
-
-
 ## Usuario de prueba
 
 | Campo | Valor |
@@ -308,7 +306,7 @@ No se versiona ningún archivo con credenciales. La opción recomendada es defin
 | `FIREBASE_REQUIRE_VERIFIED_EMAIL` | Exige correo verificado | `true` |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Ruta al JSON de Service Account para ADC | Se define localmente, fuera del repositorio |
 
-Para habilitar Firebase localmente, define `FIREBASE_ENABLED=true` y proporciona ADC mediante `GOOGLE_APPLICATION_CREDENTIALS`, apuntando a un archivo de Service Account guardado fuera del repositorio y de la aplicación. No copies ni subas ese archivo, su contenido, tokens o claves al repositorio.
+Antes de habilitar el flujo, confirma en Firebase Console que Email/Password esté habilitado en Authentication para el proyecto indicado. El backend también restringe el correo al dominio configurado.\n\nPara habilitar Firebase localmente, define `FIREBASE_ENABLED=true` y proporciona ADC mediante `GOOGLE_APPLICATION_CREDENTIALS`, apuntando a un archivo de Service Account guardado fuera del repositorio y de la aplicación. No copies ni subas ese archivo, su contenido, tokens o claves al repositorio.
 
 Ejemplo de variables Firebase en PowerShell (ajusta la ruta segura del archivo):
 
@@ -368,8 +366,6 @@ Cuando A1 esté implementado, los errores de validación añadirán el arreglo `
 
 Este formato se aplica también a los errores 401 y 403 generados por Spring Security. Los 401 de recursos protegidos incluyen la cabecera `WWW-Authenticate: Bearer`; los 405 incluyen `Allow` con los métodos soportados.
 
-
-
 ### Códigos de respuesta HTTP
 
 | Código | Cuándo se devuelve |
@@ -383,7 +379,7 @@ Este formato se aplica también a los errores 401 y 403 generados por Spring Sec
 
 ## Evidencia de pruebas
 
-- **Flujo Firebase end-to-end manual verificado:** Flutter → Firebase Authentication → ID Token → `POST /auth/firebase` → Firebase Admin (validación de token y revocación) → aprovisionamiento/reutilización del usuario en PostgreSQL → JWT del backend → `GET /api/platillos` protegido. El catálogo respondió con 15 platillos.
+- `POST /auth/login` con credenciales válidas genera un JWT correctamente.\n- **Flujo Firebase end-to-end manual verificado:** Flutter → Firebase Authentication → ID Token → `POST /auth/firebase` → Firebase Admin (validación de token y revocación) → aprovisionamiento/reutilización del usuario en PostgreSQL → JWT del backend → `GET /api/platillos` protegido. El catálogo respondió con 15 platillos.
 - La prueba end-to-end se ejecutó con la exigencia de correo verificado temporalmente desactivada; la configuración versionada mantiene `FIREBASE_REQUIRE_VERIFIED_EMAIL=true` por defecto.
 - **Pruebas unitarias Firebase existentes:** cubren política de dominio, verificación/revocación solicitada, rechazo de tokens, servicio de aprovisionamiento y contrato del controlador. Utilizan mocks y no prueban la verificación criptográfica real ni automatizan el flujo end-to-end.
 - `POST /auth/firebase` con `firebase.enabled=false` responde `503` con un mensaje controlado.
@@ -392,8 +388,6 @@ Este formato se aplica también a los errores 401 y 403 generados por Spring Sec
 - Swagger UI permite autorizar y probar los endpoints protegidos.
 - `POST /api/pedidos/con-detalles` crea correctamente un Pedido y sus DetallePedido asociados.
 - La persistencia Cascade fue comprobada verificando la creación automática de registros relacionados en PostgreSQL.
-
-
 
 ## Autor
 
