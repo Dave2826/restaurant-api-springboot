@@ -7,6 +7,7 @@ import com.david.restaurantapi.entity.DetallePedido;
 import com.david.restaurantapi.entity.Mesa;
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.entity.Platillo;
+import com.david.restaurantapi.exception.ResourceNotFoundException;
 import com.david.restaurantapi.repository.PedidoRepository;
 import java.util.List;
 import java.util.Optional;
@@ -89,8 +90,7 @@ public class PedidoService {
     @Transactional
     public PedidoConDetallesResponse guardarConDetalles(PedidoConDetallesRequest request) {
         Mesa mesa = mesaService.findById(request.getMesaId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Mesa no encontrada con id: " + request.getMesaId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada"));
 
         Pedido pedido = new Pedido();
         pedido.setFechaPedido(request.getFechaPedido());
@@ -100,8 +100,7 @@ public class PedidoService {
 
         for (DetalleEnPedidoRequest dto : request.getDetalles()) {
             Platillo platillo = platilloService.findById(dto.getPlatilloId())
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Platillo no encontrado con id: " + dto.getPlatilloId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Platillo no encontrado"));
 
             DetallePedido detalle = new DetallePedido();
             detalle.setCantidad(dto.getCantidad());

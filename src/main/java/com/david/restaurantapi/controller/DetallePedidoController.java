@@ -1,6 +1,7 @@
 package com.david.restaurantapi.controller;
 
 import com.david.restaurantapi.entity.DetallePedido;
+import com.david.restaurantapi.exception.ResourceNotFoundException;
 import com.david.restaurantapi.service.DetallePedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,9 +73,9 @@ public class DetallePedidoController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<DetallePedido> findById(@Parameter(example = "8") @PathVariable Integer id) {
-        return detallePedidoService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        DetallePedido detalle = detallePedidoService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Detalle de pedido no encontrado"));
+        return ResponseEntity.ok(detalle);
     }
 
     /**
@@ -117,9 +118,8 @@ public class DetallePedidoController {
     // HTTP DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@Parameter(example = "12") @PathVariable Integer id) {
-        if (detallePedidoService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        detallePedidoService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Detalle de pedido no encontrado"));
         detallePedidoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

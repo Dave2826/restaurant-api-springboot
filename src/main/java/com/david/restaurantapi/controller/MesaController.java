@@ -1,6 +1,7 @@
 package com.david.restaurantapi.controller;
 
 import com.david.restaurantapi.entity.Mesa;
+import com.david.restaurantapi.exception.ResourceNotFoundException;
 import com.david.restaurantapi.service.MesaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -68,9 +69,9 @@ public class MesaController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Mesa> findById(@Parameter(example = "1") @PathVariable Integer id) {
-        return mesaService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Mesa mesa = mesaService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada"));
+        return ResponseEntity.ok(mesa);
     }
 
     /**
@@ -86,9 +87,9 @@ public class MesaController {
     })
     @GetMapping("/numero/{numeroMesa}")
     public ResponseEntity<Mesa> findByNumeroMesa(@Parameter(example = "4") @PathVariable Integer numeroMesa) {
-        return mesaService.findByNumeroMesa(numeroMesa)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Mesa mesa = mesaService.findByNumeroMesa(numeroMesa)
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada"));
+        return ResponseEntity.ok(mesa);
     }
 
     /**
@@ -122,9 +123,8 @@ public class MesaController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@Parameter(example = "10") @PathVariable Integer id) {
-        if (mesaService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        mesaService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada"));
         mesaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

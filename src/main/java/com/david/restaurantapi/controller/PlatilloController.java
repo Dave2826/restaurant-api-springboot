@@ -1,6 +1,7 @@
 package com.david.restaurantapi.controller;
 
 import com.david.restaurantapi.entity.Platillo;
+import com.david.restaurantapi.exception.ResourceNotFoundException;
 import com.david.restaurantapi.service.PlatilloService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -69,9 +70,9 @@ public class PlatilloController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Platillo> findById(@Parameter(example = "3") @PathVariable Integer id) {
-        return platilloService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Platillo platillo = platilloService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Platillo no encontrado"));
+        return ResponseEntity.ok(platillo);
     }
 
     /**
@@ -121,9 +122,8 @@ public class PlatilloController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@Parameter(example = "7") @PathVariable Integer id) {
-        if (platilloService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        platilloService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Platillo no encontrado"));
         platilloService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
