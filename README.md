@@ -99,8 +99,6 @@ El flujo de autenticación funciona de la siguiente manera:
 5. En peticiones posteriores, `JwtFilter` intercepta los endpoints protegidos, extrae el token del header `Authorization` y lo valida.
 6. Si el token es válido, `SecurityContextHolder` registra la autenticación y permite el acceso al recurso.
 
-El login legado por usuario y contraseña (`POST /auth/login`) sigue disponible y es independiente de Firebase. En paralelo, la integración con Firebase Authentication es **opcional y está desactivada por defecto** (`firebase.enabled=false`): cuando se habilita, los usuarios registrados desde el cliente Flutter pueden canjear su ID Token por un JWT de Spring en `POST /auth/firebase`.
-
 ### Ejemplo de autenticación
 
 **Petición:**
@@ -247,59 +245,6 @@ Swagger permite:
 - PostgreSQL instalado y en ejecución.
 - Gradle (incluye wrapper `gradlew`).
 
-### Variables de entorno
-
-Las credenciales y el secreto JWT **no se incluyen en el archivo de configuración versionado**. La aplicación los resuelve desde variables de entorno:
-
-| Variable | Obligatoria | Descripción |
-|----------|-------------|-------------|
-| `DB_URL` | No | URL JDBC. Por defecto `jdbc:postgresql://localhost:5432/restaurant_db`. |
-| `DB_USERNAME` | Sí | Usuario de PostgreSQL. Debe definirse explícitamente; se recomienda el usuario dedicado `restaurant_app`. |
-| `DB_PASSWORD` | Sí | Contraseña de PostgreSQL. |
-| `JWT_SECRET` | Sí | Secreto de firma HS256. Debe tener al menos 32 bytes (256 bits). |
-| `JWT_EXPIRATION` | No | Vigencia del token en milisegundos. Por defecto `86400000` (24 h). |
-| `FIREBASE_ENABLED` | No | Habilita la verificación de ID Tokens de Firebase. Por defecto `false`. |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Solo si Firebase está habilitado | Ruta al JSON de la cuenta de servicio (Application Default Credentials). No se versiona. |
-| `FIREBASE_PROJECT_ID` | No | Proyecto que emite los ID Tokens. Por defecto `flutter-spring-test-73f45`. |
-| `FIREBASE_ALLOWED_DOMAIN` | No | Dominio institucional permitido. Por defecto `tecdesoftware.edu.mx`. |
-| `FIREBASE_REQUIRE_VERIFIED_EMAIL` | No | Exige correo verificado. Por defecto `true`. |
-
-`DB_USERNAME`, `DB_PASSWORD` y `JWT_SECRET` son obligatorias. La aplicación valida `DB_USERNAME` y `DB_PASSWORD` al inicio y **no arranca** si faltan o están vacías. `JWT_SECRET` también debe estar definido y cumplir la longitud mínima de HS256; de lo contrario el arranque falla.
-
-> Si estos valores se versionaron en el pasado, es obligatorio rotarlos: eliminar el archivo del commit actual no borra el historial de Git.
-
-> Spring Boot no carga archivos `.env` de forma nativa. Si usas una herramienta externa que lo haga, el archivo está ignorado por Git.
-
-Ejemplo en PowerShell:
-
-```powershell
-$env:DB_USERNAME = "restaurant_app"
-$env:DB_PASSWORD = "<contraseña>"
-$env:JWT_SECRET  = "<secreto-de-64-caracteres>"
-gradlew bootRun
-```
-
-Generación de un secreto JWT (PowerShell 7):
-
-```powershell
-$b = New-Object byte[] 48
-[System.Security.Cryptography.RandomNumberGenerator]::Fill($b)
-[Convert]::ToBase64String($b)
-```
-
-> No se debe reutilizar el secreto anterior ni compartirlo. Al rotarlo, todos los tokens emitidos dejan de ser válidos y los clientes deben iniciar sesión de nuevo.
-
-Para habilitar el canje de ID Tokens de Firebase:
-
-```powershell
-$env:FIREBASE_ENABLED = "true"
-$env:GOOGLE_APPLICATION_CREDENTIALS = "C:\ruta\segura\service-account.json"
-$env:FIREBASE_PROJECT_ID = "flutter-spring-test-73f45"
-gradlew bootRun
-```
-
-> El JSON de la cuenta de servicio no se versiona: `.gitignore` excluye los patrones habituales. Si la variable no apunta a un archivo válido, el arranque falla en lugar de aceptar tokens sin verificar.
-
 ### Base de datos
 
 Crear una base de datos llamada `restaurant_db` en PostgreSQL. El usuario dedicado recomendado es `restaurant_app`:
@@ -369,33 +314,11 @@ Este formato se aplica también a los errores 401 y 403 generados por Spring Sec
 | 200 OK | Petición exitosa |
 | 201 Created | Recurso creado correctamente |
 | 204 No Content | Petición exitosa sin contenido en la respuesta |
-| 400 Bad Request | JSON malformado o tipo de dato inválido. La validación de campos con `details` se activará en A1. |
-| 401 Unauthorized | Credenciales inválidas o token ausente, inválido o expirado. En recursos protegidos incluye `WWW-Authenticate: Bearer`. |
-| 403 Forbidden | Autenticado sin permisos. La autorización por roles se implementará en A4; no implica Firebase activo. |
-| 404 Not Found | Recurso inexistente o ruta no encontrada. |
-| 405 Method Not Allowed | Método HTTP no soportado; incluye la cabecera `Allow`. |
-| 409 Conflict | Violación de integridad de datos (clave foránea, valor único, etc.). La distinción fina con 400 se completará en A1. |
-| 415 Unsupported Media Type | `Content-Type` no soportado por el recurso. |
-| 500 Internal Server Error | Error no controlado o fallo de infraestructura (sin detalles internos en la respuesta). |
-
-### Estado de implementación
-
-- **A1 (validación de entrada):** pendiente. El handler de 400 con `details` está preparado pero no se activa todavía.
-- **A4 (autorización por roles):** pendiente. El 403 existe como contrato, pero no hay reglas por rol.
-- **A5 (pruebas automatizadas):** en curso. El backend ya tiene pruebas unitarias y de contrato para el puente de Firebase; el resto de módulos sigue pendiente.
-- **C2 (Firebase Authentication → Spring JWT):** implementado en backend y cliente Flutter. Requiere `firebase.enabled=true`, `GOOGLE_APPLICATION_CREDENTIALS` y un ID Token real para la validación de extremo a extremo.
-
-### Compatibilidad con clientes Flutter
-
-- Los payloads exitosos no cambian.
-- El cliente debe usar el código HTTP como señal principal y leer `message` del JSON.
-- Debe existir un *fallback* si el cuerpo no es JSON (por ejemplo, errores de infraestructura).
-- Los errores 401 de seguridad usan `ErrorResponse`; antes devolvían `{ "error", "mensaje" }`.
-- La verificación contra los modelos del cliente Flutter está cubierta por pruebas del cliente para `/auth/firebase`; el catálogo no cambia.
+| 401 Unauthorized | No autenticado o token inválido |
+| 403 Forbidden | Autenticado pero sin permisos para el recurso |
+| 404 Not Found | Recurso no encontrado |
 
 ## Evidencia de pruebas
-
-> La evidencia siguiente es manual y previa a este incremento. El contrato nuevo (404 de rutas, 415, cabeceras y validación de secretos) queda pendiente de VALIDATE. Las pruebas automatizadas cubren por ahora el puente de Firebase (`FirebaseTokenVerifierTest`, `FirebaseLoginServiceTest`, `AuthControllerFirebaseTest`).
 
 - `POST /auth/login` con credenciales válidas genera un token JWT correctamente.
 - `POST /auth/firebase` con un ID Token válido devuelve el JWT del backend y aprovisiona al usuario (verificado con pruebas automatizadas; falta la prueba de extremo a extremo con credenciales reales).

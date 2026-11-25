@@ -1,5 +1,6 @@
 package com.david.restaurantapi.service;
 
+import java.math.BigDecimal;
 import com.david.restaurantapi.dto.DetalleEnPedidoRequest;
 import com.david.restaurantapi.dto.PedidoConDetallesRequest;
 import com.david.restaurantapi.dto.PedidoConDetallesResponse;
@@ -30,8 +31,8 @@ public class PedidoService {
     private final PlatilloService platilloService;
 
     public PedidoService(PedidoRepository pedidoRepository,
-                         MesaService mesaService,
-                         PlatilloService platilloService) {
+            MesaService mesaService,
+            PlatilloService platilloService) {
         this.pedidoRepository = pedidoRepository;
         this.mesaService = mesaService;
         this.platilloService = platilloService;
@@ -89,29 +90,43 @@ public class PedidoService {
     // Cascade / Maestro → Detalle / Persistencia automática
     @Transactional
     public PedidoConDetallesResponse guardarConDetalles(PedidoConDetallesRequest request) {
+        if (request.getDetalles() == null || request.getDetalles().isEmpty()) {
+            throw new IllegalArgumentException("El pedido debe tener al menos un detalle");
+        }
+
         Mesa mesa = mesaService.findById(request.getMesaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa no encontrada"));
 
         Pedido pedido = new Pedido();
         pedido.setFechaPedido(request.getFechaPedido());
         pedido.setEstado(request.getEstado());
-        pedido.setTotal(request.getTotal());
         pedido.setMesa(mesa);
 
+        BigDecimal totalPedido = BigDecimal.ZERO;
+
         for (DetalleEnPedidoRequest dto : request.getDetalles()) {
+            // Validación: cantidad debe ser mayor que cero
+            if (dto.getCantidad() <= 0) {
+                throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+            }
+
             Platillo platillo = platilloService.findById(dto.getPlatilloId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Platillo no encontrado"));
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Platillo no encontrado con id: " + dto.getPlatilloId()));
 
             DetallePedido detalle = new DetallePedido();
             detalle.setCantidad(dto.getCantidad());
-            detalle.setPrecioUnitario(dto.getPrecioUnitario());
-            detalle.setSubtotal(dto.getSubtotal());
+            detalle.setPrecioUnitario(precioReal);
+            detalle.setSubtotal(subtotalReal);
             detalle.setPlatillo(platillo);
             detalle.setPedido(pedido);
             // Cascade: al agregar a la lista, JPA persiste automaticamente
             pedido.getDetalles().add(detalle);
+
+            totalPedido = totalPedido.add(subtotalReal);
         }
 
+        pedido.setTotal(totalPedido);
         // Unico save: CascadeType.ALL propaga a DetallePedido
         Pedido saved = pedidoRepository.save(pedido);
         return new PedidoConDetallesResponse(saved);

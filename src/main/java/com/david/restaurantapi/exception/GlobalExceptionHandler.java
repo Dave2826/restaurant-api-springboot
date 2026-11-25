@@ -1,8 +1,5 @@
 package com.david.restaurantapi.exception;
 
-import com.david.restaurantapi.auth.FirebaseLoginService;
-import com.david.restaurantapi.auth.FirebaseTokenVerifier.Reason;
-import com.david.restaurantapi.auth.FirebaseTokenVerifier.TokenRejectedException;
 import com.david.restaurantapi.dto.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,8 +44,7 @@ public class GlobalExceptionHandler {
     private static final String CONFLICT_MESSAGE = "La operación entra en conflicto con datos existentes";
     private static final String METHOD_NOT_ALLOWED_MESSAGE = "Método HTTP no soportado para este recurso";
     private static final String UNSUPPORTED_MEDIA_TYPE_MESSAGE = "Tipo de contenido no soportado";
-    private static final String AUTHENTICATION_INFRASTRUCTURE_MESSAGE =
-            "No fue posible completar la autenticación por un problema interno";
+    private static final String AUTHENTICATION_INFRASTRUCTURE_MESSAGE = "No fue posible completar la autenticación por un problema interno";
 
     /**
      * Maneja errores de validación de argumentos en DTOs (@Valid).
@@ -139,7 +135,7 @@ public class GlobalExceptionHandler {
      * datos no disponible). No son errores de credenciales del usuario, por lo
      * que no deben responder 401.
      */
-    @ExceptionHandler({AuthenticationServiceException.class, ProviderNotFoundException.class})
+    @ExceptionHandler({ AuthenticationServiceException.class, ProviderNotFoundException.class })
     public ResponseEntity<ErrorResponse> handleAuthenticationInfrastructure(
             AuthenticationException ex, HttpServletRequest request) {
 
@@ -149,83 +145,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja fallos de autenticación (credenciales inválidas o usuario no encontrado).
+     * Maneja fallos de autenticación (credenciales inválidas o usuario no
+     * encontrado).
      */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException ex, HttpServletRequest request) {
 
-        return build(HttpStatus.UNAUTHORIZED, UNAUTHORIZED_MESSAGE, request);
-    }
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                "Credenciales de acceso inválidas",
+                request.getRequestURI());
 
-    /**
-     * Maneja denegaciones de acceso producidas por reglas de autorización.
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
-            AccessDeniedException ex, HttpServletRequest request) {
-
-        return build(HttpStatus.FORBIDDEN, FORBIDDEN_MESSAGE, request);
-    }
-
-    /**
-     * Maneja rechazos de ID Tokens de Firebase.
-     * Un token inválido responde 401; un dominio o correo no permitido responde 403.
-     */
-    @ExceptionHandler(TokenRejectedException.class)
-    public ResponseEntity<ErrorResponse> handleTokenRejectedException(
-            TokenRejectedException ex, HttpServletRequest request) {
-
-        HttpStatus status = ex.getReason() == Reason.INVALID_TOKEN
-                ? HttpStatus.UNAUTHORIZED
-                : HttpStatus.FORBIDDEN;
-
-        return build(status, ex.getMessage(), request);
-    }
-
-    /**
-     * Maneja el caso en el que la integración con Firebase Admin no está
-     * habilitada o no tiene credenciales. No es un fallo del usuario, por lo
-     * que no debe responder 401 ni 500 genérico.
-     */
-    @ExceptionHandler(FirebaseLoginService.FirebaseUnavailableException.class)
-    public ResponseEntity<ErrorResponse> handleFirebaseUnavailable(
-            FirebaseLoginService.FirebaseUnavailableException ex, HttpServletRequest request) {
-
-        log.warn("Integración con Firebase no disponible en la ruta {}", request.getRequestURI());
-        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
-    }
-
-    /**
-     * Maneja violaciones de integridad de datos (claves foráneas, valores únicos, etc.).
-     */
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
-            DataIntegrityViolationException ex, HttpServletRequest request) {
-
-        log.warn("Conflicto de integridad de datos en la ruta {}", request.getRequestURI(), ex);
-        return build(HttpStatus.CONFLICT, CONFLICT_MESSAGE, request);
-    }
-
-    /**
-     * Maneja el uso de un método HTTP no soportado por el recurso.
-     */
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleMethodNotSupported(
-            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
-
-        HttpHeaders headers = new HttpHeaders();
-        Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
-        if (supportedMethods != null && !supportedMethods.isEmpty()) {
-            headers.setAllow(supportedMethods);
-        }
-
-        return build(HttpStatus.METHOD_NOT_ALLOWED, METHOD_NOT_ALLOWED_MESSAGE, request, headers);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
     /**
      * Manejador de respaldo para cualquier excepción no controlada.
-     * Registra el error internamente con logger pero no expone stack traces al cliente.
+     * Registra el error internamente con logger pero no expone stack traces al
+     * cliente.
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllUncaughtException(
@@ -241,37 +180,34 @@ public class GlobalExceptionHandler {
                 status.value(),
                 status.getReasonPhrase(),
                 message,
-                request.getRequestURI()
-        );
+                request.getRequestURI());
 
         return ResponseEntity.status(status).body(errorResponse);
     }
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status,
-                                                String message,
-                                                HttpServletRequest request,
-                                                HttpHeaders headers) {
+            String message,
+            HttpServletRequest request,
+            HttpHeaders headers) {
         ErrorResponse errorResponse = new ErrorResponse(
                 status.value(),
                 status.getReasonPhrase(),
                 message,
-                request.getRequestURI()
-        );
+                request.getRequestURI());
 
         return ResponseEntity.status(status).headers(headers).body(errorResponse);
     }
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status,
-                                                String message,
-                                                HttpServletRequest request,
-                                                List<ErrorResponse.ValidationErrorDetail> details) {
+            String message,
+            HttpServletRequest request,
+            List<ErrorResponse.ValidationErrorDetail> details) {
         ErrorResponse errorResponse = new ErrorResponse(
                 status.value(),
                 status.getReasonPhrase(),
                 message,
                 request.getRequestURI(),
-                details
-        );
+                details);
 
         return ResponseEntity.status(status).body(errorResponse);
     }
