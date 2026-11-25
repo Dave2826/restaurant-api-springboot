@@ -22,3 +22,9 @@ Thumbs.db
 *firebase-adminsdk*.json
 serviceAccount*.json
 *-service-account.json
+
+# Configuracion local con credenciales (nunca debe versionarse)
+application-local.yml
+application-local.yaml
+.env
+*.env

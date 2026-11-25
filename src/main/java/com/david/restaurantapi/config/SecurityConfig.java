@@ -1,10 +1,19 @@
 package com.david.restaurantapi.config;
 
+import com.david.restaurantapi.dto.ErrorResponse;
 import com.david.restaurantapi.security.CustomUserDetailsService;
 import com.david.restaurantapi.security.JwtFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,7 +27,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.List;
 
 /**
  * Configuracion de seguridad Spring Security con JWT.
@@ -30,12 +38,19 @@ import java.util.List;
 // Spring Security
 public class SecurityConfig {
 
+    static final String UNAUTHORIZED_MESSAGE = "No autenticado o token inválido";
+    static final String FORBIDDEN_MESSAGE = "No tiene permisos para acceder a este recurso";
+
     private final JwtFilter jwtFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
 
-    public SecurityConfig(JwtFilter jwtFilter, CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(JwtFilter jwtFilter,
+                          CustomUserDetailsService userDetailsService,
+                          ObjectMapper objectMapper) {
         this.jwtFilter = jwtFilter;
         this.userDetailsService = userDetailsService;
+        this.objectMapper = objectMapper;
     }
 
     // SecurityFilterChain
@@ -56,19 +71,11 @@ public class SecurityConfig {
             // AuthenticationEntryPoint / AccessDeniedHandler
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
-                    response.setContentType("application/json");
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write(
-                        "{\"error\": \"No autorizado\", \"mensaje\": \"" +
-                        authException.getMessage() + "\"}");
+                    response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+                    writeError(response, request, HttpStatus.UNAUTHORIZED, UNAUTHORIZED_MESSAGE);
                 })
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.setContentType("application/json");
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write(
-                        "{\"error\": \"Acceso denegado\", \"mensaje\": \"" +
-                        accessDeniedException.getMessage() + "\"}");
-                }));
+                .accessDeniedHandler((request, response, accessDeniedException) ->
+                    writeError(response, request, HttpStatus.FORBIDDEN, FORBIDDEN_MESSAGE)));
 
         return http.build();
     }
@@ -104,5 +111,27 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Escribe una respuesta de error de seguridad con el formato estandar
+     * {@link ErrorResponse}, sin exponer detalles internos.
+     */
+    void writeError(HttpServletResponse response,
+                    HttpServletRequest request,
+                    HttpStatus status,
+                    String message) throws IOException {
+        response.setStatus(status.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                request.getRequestURI()
+        );
+
+        objectMapper.writeValue(response.getWriter(), errorResponse);
     }
 }
