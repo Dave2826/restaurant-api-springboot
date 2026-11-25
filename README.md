@@ -306,7 +306,9 @@ No se versiona ningún archivo con credenciales. La opción recomendada es defin
 | `FIREBASE_REQUIRE_VERIFIED_EMAIL` | Exige correo verificado | `true` |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Ruta al JSON de Service Account para ADC | Se define localmente, fuera del repositorio |
 
-Antes de habilitar el flujo, confirma en Firebase Console que Email/Password esté habilitado en Authentication para el proyecto indicado. El backend también restringe el correo al dominio configurado.\n\nPara habilitar Firebase localmente, define `FIREBASE_ENABLED=true` y proporciona ADC mediante `GOOGLE_APPLICATION_CREDENTIALS`, apuntando a un archivo de Service Account guardado fuera del repositorio y de la aplicación. No copies ni subas ese archivo, su contenido, tokens o claves al repositorio.
+Antes de habilitar el flujo, confirma en Firebase Console que Email/Password esté habilitado en Authentication para el proyecto indicado. El backend también restringe el correo al dominio configurado.
+
+Para habilitar Firebase localmente, define `FIREBASE_ENABLED=true` y proporciona ADC mediante `GOOGLE_APPLICATION_CREDENTIALS`, apuntando a un archivo de Service Account guardado fuera del repositorio y de la aplicación. No copies ni subas ese archivo, su contenido, tokens o claves al repositorio.
 
 Ejemplo de variables Firebase en PowerShell (ajusta la ruta segura del archivo):
 
@@ -379,7 +381,8 @@ Este formato se aplica también a los errores 401 y 403 generados por Spring Sec
 
 ## Evidencia de pruebas
 
-- `POST /auth/login` con credenciales válidas genera un JWT correctamente.\n- **Flujo Firebase end-to-end manual verificado:** Flutter → Firebase Authentication → ID Token → `POST /auth/firebase` → Firebase Admin (validación de token y revocación) → aprovisionamiento/reutilización del usuario en PostgreSQL → JWT del backend → `GET /api/platillos` protegido. El catálogo respondió con 15 platillos.
+- `POST /auth/login` con credenciales válidas genera un JWT correctamente.
+- **Flujo Firebase end-to-end manual verificado:** Flutter → Firebase Authentication → ID Token → `POST /auth/firebase` → Firebase Admin (validación de token y revocación) → aprovisionamiento/reutilización del usuario en PostgreSQL → JWT del backend → `GET /api/platillos` protegido. El catálogo respondió con 15 platillos.
 - La prueba end-to-end se ejecutó con la exigencia de correo verificado temporalmente desactivada; la configuración versionada mantiene `FIREBASE_REQUIRE_VERIFIED_EMAIL=true` por defecto.
 - **Pruebas unitarias Firebase existentes:** cubren política de dominio, verificación/revocación solicitada, rechazo de tokens, servicio de aprovisionamiento y contrato del controlador. Utilizan mocks y no prueban la verificación criptográfica real ni automatizan el flujo end-to-end.
 - `POST /auth/firebase` con `firebase.enabled=false` responde `503` con un mensaje controlado.
