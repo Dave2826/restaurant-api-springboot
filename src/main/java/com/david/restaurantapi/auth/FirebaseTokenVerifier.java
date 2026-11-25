@@ -27,14 +27,13 @@ public class FirebaseTokenVerifier {
     private final boolean requireVerifiedEmail;
 
     /**
-     * @param firebaseAuth servicio de Firebase Auth
-     * @param allowedDomain dominio institucional permitido (con o sin @)
+     * @param firebaseAuth         servicio de Firebase Auth
+     * @param allowedDomain        dominio institucional permitido (con o sin @)
      * @param requireVerifiedEmail exige que el correo este verificado
      */
     public FirebaseTokenVerifier(FirebaseAuth firebaseAuth,
-                                 @Value("${firebase.allowed-domain}") String allowedDomain,
-                                 @Value("${firebase.require-verified-email:true}")
-                                 boolean requireVerifiedEmail) {
+            @Value("${firebase.allowed-domain}") String allowedDomain,
+            @Value("${firebase.require-verified-email:true}") boolean requireVerifiedEmail) {
         this.firebaseAuth = firebaseAuth;
         this.allowedDomain = normalizeDomain(allowedDomain);
         this.requireVerifiedEmail = requireVerifiedEmail;
@@ -100,8 +99,8 @@ public class FirebaseTokenVerifier {
     /**
      * Datos de identidad derivados del token verificado.
      *
-     * @param uid identificador estable de Firebase
-     * @param email correo normalizado en minusculas
+     * @param uid           identificador estable de Firebase
+     * @param email         correo normalizado en minusculas
      * @param emailVerified indica si Firebase considera el correo verificado
      */
     public record FirebaseIdentity(String uid, String email, boolean emailVerified) {
