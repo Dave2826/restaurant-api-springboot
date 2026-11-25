@@ -3,6 +3,7 @@ package com.david.restaurantapi.controller;
 import com.david.restaurantapi.dto.PedidoConDetallesRequest;
 import com.david.restaurantapi.dto.PedidoConDetallesResponse;
 import com.david.restaurantapi.entity.Pedido;
+import com.david.restaurantapi.exception.ResourceNotFoundException;
 import com.david.restaurantapi.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -74,9 +75,9 @@ public class PedidoController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> findById(@Parameter(example = "4") @PathVariable Integer id) {
-        return pedidoService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Pedido pedido = pedidoService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
+        return ResponseEntity.ok(pedido);
     }
 
     /**
@@ -128,9 +129,8 @@ public class PedidoController {
     // HTTP DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@Parameter(example = "6") @PathVariable Integer id) {
-        if (pedidoService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        pedidoService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
         pedidoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
@@ -146,11 +146,7 @@ public class PedidoController {
     // HTTP POST
     @PostMapping("/con-detalles")
     public ResponseEntity<PedidoConDetallesResponse> guardarConDetalles(@RequestBody PedidoConDetallesRequest request) {
-        try {
-            PedidoConDetallesResponse response = pedidoService.guardarConDetalles(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        PedidoConDetallesResponse response = pedidoService.guardarConDetalles(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

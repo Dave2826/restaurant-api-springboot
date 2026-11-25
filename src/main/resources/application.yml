@@ -4,10 +4,13 @@ spring:
     name: restaurant-api
 
 # Configuracion de PostgreSQL
+# Las credenciales se resuelven desde variables de entorno.
+# DB_USERNAME y DB_PASSWORD son obligatorias: si faltan o estan vacias,
+# la aplicacion no arranca (validacion explicita al inicio).
   datasource:
-    url: jdbc:postgresql://localhost:5432/restaurant_db
-    username: postgres
-    password: Datos2026
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/restaurant_db}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
 # Configuracion de Hibernate
@@ -29,9 +32,10 @@ server:
   port: 8080
 
 # Configuracion JWT
+# JWT_SECRET es obligatoria y debe tener al menos 32 bytes (256 bits) para HS256.
 jwt:
-  secret: "clave-segura-para-restaurant-api-con-minimo-32-caracteres-2026"
-  expiration: 86400000
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 # Configuracion de Firebase Admin
 # Desactivado por defecto: el backend arranca sin credenciales de Firebase y

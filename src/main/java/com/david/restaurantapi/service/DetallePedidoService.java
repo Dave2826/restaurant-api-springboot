@@ -3,10 +3,10 @@ package com.david.restaurantapi.service;
 import com.david.restaurantapi.entity.DetallePedido;
 import com.david.restaurantapi.entity.Pedido;
 import com.david.restaurantapi.entity.Platillo;
+import com.david.restaurantapi.exception.ResourceNotFoundException;
 import com.david.restaurantapi.repository.DetallePedidoRepository;
 import com.david.restaurantapi.repository.PedidoRepository;
 import com.david.restaurantapi.repository.PlatilloRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -61,9 +61,9 @@ public class DetallePedidoService {
      */
     public DetallePedido save(DetallePedido detallePedido) {
         Pedido pedido = pedidoRepository.findById(detallePedido.getPedido().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Pedido no encontrado con id: " + detallePedido.getPedido().getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
         Platillo platillo = platilloRepository.findById(detallePedido.getPlatillo().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Platillo no encontrado con id: " + detallePedido.getPlatillo().getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Platillo no encontrado"));
         detallePedido.setPedido(pedido);
         detallePedido.setPlatillo(platillo);
         return detallePedidoRepository.save(detallePedido);
