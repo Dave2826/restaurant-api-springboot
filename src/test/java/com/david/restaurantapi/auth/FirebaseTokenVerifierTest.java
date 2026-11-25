@@ -58,8 +58,9 @@ class FirebaseTokenVerifierTest {
     @Test
     @DisplayName("acepta un token del dominio institucional con correo verificado")
     void acceptsInstitutionalVerifiedUser() throws Exception {
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-123", "david.morales@tecdesoftware.edu.mx", true));
+        FirebaseToken firebaseToken =
+                token("uid-123", "david.morales@tecdesoftware.edu.mx", true);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         FirebaseIdentity identity = verifier.verify(TOKEN);
 
@@ -71,8 +72,9 @@ class FirebaseTokenVerifierTest {
     @Test
     @DisplayName("verifica el token con comprobacion de revocacion activa")
     void verifiesTokenWithRevocationCheck() throws Exception {
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-123", "david.morales@tecdesoftware.edu.mx", true));
+        FirebaseToken firebaseToken =
+                token("uid-123", "david.morales@tecdesoftware.edu.mx", true);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         verifier.verify(TOKEN);
 
@@ -82,8 +84,9 @@ class FirebaseTokenVerifierTest {
     @Test
     @DisplayName("normaliza el correo a minusculas antes de evaluar el dominio")
     void normalizesEmailBeforeDomainCheck() throws Exception {
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-123", "  David.Morales@TecDeSoftware.edu.MX ", true));
+        FirebaseToken firebaseToken =
+                token("uid-123", "  David.Morales@TecDeSoftware.edu.MX ", true);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         FirebaseIdentity identity = verifier.verify(TOKEN);
 
@@ -93,8 +96,8 @@ class FirebaseTokenVerifierTest {
     @Test
     @DisplayName("rechaza un correo de otro dominio")
     void rejectsForeignDomain() throws Exception {
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-1", "alguien@gmail.com", true));
+        FirebaseToken firebaseToken = token("uid-1", "alguien@gmail.com", true);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         TokenRejectedException exception = rejection(TOKEN);
 
@@ -104,8 +107,8 @@ class FirebaseTokenVerifierTest {
     @Test
     @DisplayName("rechaza un token sin correo asociado")
     void rejectsTokenWithoutEmail() throws Exception {
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-1", null, true));
+        FirebaseToken firebaseToken = token("uid-1", null, true);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         TokenRejectedException exception = rejection(TOKEN);
 
@@ -115,8 +118,9 @@ class FirebaseTokenVerifierTest {
     @Test
     @DisplayName("rechaza un correo institucional sin verificar")
     void rejectsUnverifiedEmail() throws Exception {
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-1", "david.morales@tecdesoftware.edu.mx", false));
+        FirebaseToken firebaseToken =
+                token("uid-1", "david.morales@tecdesoftware.edu.mx", false);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         TokenRejectedException exception = rejection(TOKEN);
 
@@ -148,8 +152,9 @@ class FirebaseTokenVerifierTest {
     void allowsUnverifiedEmailWhenPolicyDisabled() throws Exception {
         FirebaseTokenVerifier permissive =
                 new FirebaseTokenVerifier(firebaseAuth, "@tecdesoftware.edu.mx", false);
-        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(
-                token("uid-1", "david.morales@tecdesoftware.edu.mx", false));
+        FirebaseToken firebaseToken =
+                token("uid-1", "david.morales@tecdesoftware.edu.mx", false);
+        when(firebaseAuth.verifyIdToken(TOKEN, true)).thenReturn(firebaseToken);
 
         FirebaseIdentity identity = permissive.verify(TOKEN);
 
