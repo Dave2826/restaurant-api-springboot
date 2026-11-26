@@ -1,5 +1,6 @@
 package com.david.restaurantapi.exception;
 
+import com.david.restaurantapi.auth.FirebaseTokenVerifier.TokenRejectedException;
 import com.david.restaurantapi.dto.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -159,6 +160,21 @@ public class GlobalExceptionHandler {
                 request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    /**
+     * Maneja rechazos de tokens de Firebase según el motivo.
+     */
+    @ExceptionHandler(TokenRejectedException.class)
+    public ResponseEntity<ErrorResponse> handleFirebaseTokenRejected(
+            TokenRejectedException ex, HttpServletRequest request) {
+
+        HttpStatus status = switch (ex.getReason()) {
+            case EMAIL_NOT_VERIFIED, DOMAIN_NOT_ALLOWED -> HttpStatus.FORBIDDEN;
+            case INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
+        };
+
+        return build(status, messageOrDefault(ex, "Token de Firebase rechazado"), request);
     }
 
     /**
