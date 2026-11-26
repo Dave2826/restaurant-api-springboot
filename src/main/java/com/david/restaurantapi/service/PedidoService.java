@@ -114,12 +114,18 @@ public class PedidoService {
                     .orElseThrow(() -> new IllegalArgumentException(
                             "Platillo no encontrado con id: " + dto.getPlatilloId()));
 
+            // Precio calculado desde el platillo almacenado en la BD
+            BigDecimal precioReal = platillo.getPrecio();
+            BigDecimal subtotalReal = precioReal.multiply(
+                    BigDecimal.valueOf(dto.getCantidad()));
+
             DetallePedido detalle = new DetallePedido();
             detalle.setCantidad(dto.getCantidad());
             detalle.setPrecioUnitario(precioReal);
             detalle.setSubtotal(subtotalReal);
             detalle.setPlatillo(platillo);
             detalle.setPedido(pedido);
+
             // Cascade: al agregar a la lista, JPA persiste automaticamente
             pedido.getDetalles().add(detalle);
 
